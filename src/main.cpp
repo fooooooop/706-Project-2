@@ -18,10 +18,12 @@ short k = 0;
 long global_timesnap = 0;
 
 // Speed Control
-int speed_val = 165;
+int speed_val = 125;
 int speed_change = 0;
 
 int pos = 0;  // turret pos?
+
+int obstacle_detect = 150;
 
 // Gyro Parameters
 float gyroSupplyVoltage = 5;  // supply voltage for gyro

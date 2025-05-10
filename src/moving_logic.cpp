@@ -33,38 +33,31 @@ void stop_motors() {
 void forward() {
   while (Serial1.read() != 'v') {
     GYRO_controller(0, 20.5, 0, 0);
-    // dualPrintln(currentAngle);
-    dualPrintln(IR_controller(405, AWD, RIGHT, 2.05, 0.02, 0.08));
-    left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u - IR_u);
-    left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u + IR_u);
-    right_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u + IR_u);
-    right_front_motor.writeMicroseconds(1500 - speed_val + gyro_u - IR_u);
-    // IR_u based on strafe_left function
+    left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u);
+    left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u);
+    right_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u);
+    right_front_motor.writeMicroseconds(1500 - speed_val + gyro_u);
+
+    if (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) || ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect)) avoid_obstacle();
   }
 
   // Stop Motor ----//
-  left_front_motor.writeMicroseconds(0);
-  left_rear_motor.writeMicroseconds(0);
-  right_rear_motor.writeMicroseconds(0);
-  right_front_motor.writeMicroseconds(0);
+  stop_motors();
 }
 
 void reverse() {
   while (Serial1.read() != 'v') {
     GYRO_controller(0, 20.5, 0, 0);
-    dualPrintln(IR_controller(405, AWD, RIGHT, 2.05, 0.02, 0.08));
-    left_front_motor.writeMicroseconds(1500 - speed_val + gyro_u - IR_u);
-    left_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u + IR_u);
-    right_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u + IR_u);
-    right_front_motor.writeMicroseconds(1500 + speed_val + gyro_u - IR_u);
-    // IR_u based on strafe_left function
+    left_front_motor.writeMicroseconds(1500 - speed_val + gyro_u);
+    left_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u);
+    right_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u);
+    right_front_motor.writeMicroseconds(1500 + speed_val + gyro_u);
+
+    if (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) || ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect)) avoid_obstacle();
   }
 
   // Stop Motor ----//
-  left_front_motor.writeMicroseconds(0);
-  left_rear_motor.writeMicroseconds(0);
-  right_rear_motor.writeMicroseconds(0);
-  right_front_motor.writeMicroseconds(0);
+  stop_motors();
 }
 
 void ccw() {
@@ -86,19 +79,6 @@ void strafe_left() {
   // left_rear_motor.writeMicroseconds(1500 + speed_val);
   // right_rear_motor.writeMicroseconds(1500 + speed_val);
   // right_front_motor.writeMicroseconds(1500 - speed_val);
-  
-  // strafe_target(180, RIGHT);
-  // dualPrintln("Strafe 6 done");
-  // strafe_target(360, RIGHT);
-  // dualPrintln("Strafe 5 done");
-  strafe_target(160, LEFT, SLOW);
-  dualPrintln("Strafe 4 done");
-  // strafe_target(600, LEFT);
-  // dualPrintln("Strafe 3 done");
-  // strafe_target(400, LEFT);
-  // dualPrintln("Strafe 2 done");
-  // strafe_target(200, LEFT);
-  // dualPrintln("Strafe 1 done");
 }
 
 void strafe_right() {
@@ -106,20 +86,6 @@ void strafe_right() {
   // left_rear_motor.writeMicroseconds(1500 - speed_val);
   // right_rear_motor.writeMicroseconds(1500 - speed_val);
   // right_front_motor.writeMicroseconds(1500 + speed_val);
-
-  // strafe_target(200, LEFT);
-  // dualPrintln("Strafe 1 done");
-  // strafe_target(400, LEFT);
-  // dualPrintln("Strafe 2 done");
-  strafe_target(100, RIGHT, SLOW);
-  dualPrintln("Strafe 3 done");
-  // strafe_target(500, RIGHT);
-  // dualPrintln("Strafe 4 done");
-  // strafe_target(360, RIGHT);
-  // dualPrintln("Strafe 5 done");
-  // strafe_target(180, RIGHT);
-  // dualPrintln("Strafe 6 done");
-  
 }
 
 
@@ -169,11 +135,6 @@ void forward_target(double target_sidewall, double target, enum DIRECTION left_r
   do {
     GYRO_controller(0, 20.25, 0, 0);
     IR_controller(target_sidewall, AWD, left_right, 2.05, 0.01, 0.08);
-    if (millis() - global_timesnap > SAMPLING_TIME) {
-      k += 1; 
-      global_timesnap = millis();
-    }
-    US_value[k] = HC_SR04_range();
 
     // Send Power to Motors-----//
     left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u - IR_u);
@@ -183,13 +144,10 @@ void forward_target(double target_sidewall, double target, enum DIRECTION left_r
     // IR_u based on strafe_left function
 
     // Exit Condition - when ultrasonic sensor reaches target//
-  } while (US_value[k] > target);
+  } while (1); //(US_value[k] > target); Ultrasonic sensor isn't a thing right now
 
   // Stop Motor ----//
-  left_front_motor.writeMicroseconds(0);
-  left_rear_motor.writeMicroseconds(0);
-  right_rear_motor.writeMicroseconds(0);
-  right_front_motor.writeMicroseconds(0);
+  stop_motors();
 
   IR_u = 0;
   IR_err_mem = 0;
@@ -204,12 +162,6 @@ void reverse_target(double target_sidewall, double target, enum DIRECTION left_r
   do {
     GYRO_controller(0, 20.25, 0, 0);
     IR_controller(target_sidewall, AWD, left_right, 2.05, 0.01, 0.08);
-    if (millis() - global_timesnap > SAMPLING_TIME) {
-      k += 1; 
-      global_timesnap = millis();
-    }
-    US_value[k] = HC_SR04_range();
-    
 
     // Send Power to Motors-----//
     left_front_motor.writeMicroseconds(1500 - speed_val + gyro_u - IR_u);
@@ -219,13 +171,10 @@ void reverse_target(double target_sidewall, double target, enum DIRECTION left_r
     // IR_u based on strafe_left function
 
     // Exit Condition - when ultrasonic sensor reaches target//
-  } while (US_value[k] < target);
+  } while(1); //(US_value[k] < target); Ultrasonic sensor isn't a thing right now
 
   // Stop Motor ----//
-  left_front_motor.writeMicroseconds(0);
-  left_rear_motor.writeMicroseconds(0);
-  right_rear_motor.writeMicroseconds(0);
-  right_front_motor.writeMicroseconds(0);
+  stop_motors();
 
   IR_u = 0;
   IR_err_mem = 0;
@@ -236,13 +185,13 @@ void reverse_target(double target_sidewall, double target, enum DIRECTION left_r
 
 void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit) {
   bool strafe_exit = false;
-  double strafe_timer = 0;
   bool strafe_timestart = false;
-  double strafe_bounds = 10;
   double IR_err_pos = 0;
+  double strafe_bounds = 10;
   double gyro_err_pos;
   double gyro_bounds = 100;
-  double timer_stop = millis();
+  double strafe_timer = 0;
+  double timer_stop = millis(); // For redundancy
 
   if (boostit == SLOW){
     // Strafe to a target by "pushing" off a wall-----//
@@ -253,23 +202,15 @@ void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit)
       // IR_err_Fpos = IR_controller(target, FWD, left_right, 3.0, 0.0015, 0);
       // IR_err_Bpos = IR_controller(target, RWD, left_right, 3.0, 0.0015, 0);  
 
-      if (millis() - global_timesnap > SAMPLING_TIME) {
-        US_value[k] = HC_SR04_range();
-        k += 1; 
-        global_timesnap = millis();
-      }
-
-      dualPrintln(IR_err_pos);
-
       left_front_motor.writeMicroseconds(1500 + gyro_u - IR_u);
       left_rear_motor.writeMicroseconds(1500 + gyro_u + IR_u);
       right_rear_motor.writeMicroseconds(1500 + gyro_u + IR_u);
       right_front_motor.writeMicroseconds(1500 + gyro_u - IR_u);
       
-      // left_front_motor.writeMicroseconds(1500 - 100 + gyro_u - IRFront_u);
-      // left_rear_motor.writeMicroseconds(1500 + 100 + gyro_u + IRBack_u);
-      // right_rear_motor.writeMicroseconds(1500 + 100 + gyro_u + IRBack_u);
-      // right_front_motor.writeMicroseconds(1500 - 100 + gyro_u - IRFront_u);
+      // left_front_motor.writeMicroseconds(1500 + gyro_u - IRFront_u);
+      // left_rear_motor.writeMicroseconds(1500 + gyro_u + IRBack_u);
+      // right_rear_motor.writeMicroseconds(1500 + gyro_u + IRBack_u);
+      // right_front_motor.writeMicroseconds(1500 + gyro_u - IRFront_u);
 
       // Exit Condition-----//
       if (((abs(gyro_err_pos) < gyro_bounds) &&
@@ -300,10 +241,7 @@ void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit)
     }
 
     // Stop Motor ----//
-    left_front_motor.writeMicroseconds(0);
-    left_rear_motor.writeMicroseconds(0);
-    right_rear_motor.writeMicroseconds(0);
-    right_front_motor.writeMicroseconds(0);
+    stop_motors();
 
     IR_u = 0;
     IRFront_u = 0;
@@ -322,12 +260,6 @@ void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit)
       gyro_err_pos = GYRO_controller(0, 6, 0, 0);
       IR_err_pos = IR_controller(target, AWD, left_right, 1.5, 0.0105, 0.03);
 
-      if (millis() - global_timesnap > SAMPLING_TIME) {
-        US_value[k] = HC_SR04_range();
-        k += 1; 
-        global_timesnap = millis();
-      }
-
       left_front_motor.writeMicroseconds(1500 + gyro_u - IR_u);
       left_rear_motor.writeMicroseconds(1500 + gyro_u + IR_u);
       right_rear_motor.writeMicroseconds(1500 + gyro_u + IR_u);
@@ -336,10 +268,7 @@ void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit)
     } while (abs(IR_err_pos) > 20);
 
     // Stop Motor ----//
-    left_front_motor.writeMicroseconds(0);
-    left_rear_motor.writeMicroseconds(0);
-    right_rear_motor.writeMicroseconds(0);
-    right_front_motor.writeMicroseconds(0);
+    stop_motors();
 
     IR_u = 0;
     IRFront_u = 0;
@@ -350,6 +279,86 @@ void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit)
     IR_err_previous = 0;
 
     return;
+  }
+}
+
+void strafe_time(double time_target, enum DIRECTION left_right){
+  double timer_stop;
+  double strafe_power = 100;
+
+  if (left_right == RIGHT) {
+    do { // Strafe Right until front doesn't see obstacle
+      // Start Strafing------------//
+      GYRO_controller(0, 6, 0, 0);
+
+      left_front_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
+
+    } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) && ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect));
+
+    timer_stop = millis();
+    do { // Strafe Right to clear wheel
+      // Start Strafing------------//
+      GYRO_controller(0, 6, 0, 0);
+
+      left_front_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
+
+    } while (millis() - timer_stop < time_target);
+
+    // Stop Motor ----//
+    stop_motors();
+    return;
+  } else if (left_right == LEFT) {
+    do { // Strafe Right until front doesn't see obstacle
+      // Start Strafing------------//
+      GYRO_controller(0, 6, 0, 0);
+
+      left_front_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
+      right_front_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
+
+    } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) && ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect));
+
+    timer_stop = millis();
+    do { // Strafe Right to clear wheel
+      // Start Strafing------------//
+      GYRO_controller(0, 6, 0, 0);
+
+      left_front_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
+      right_front_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
+
+    } while (millis() - timer_stop < time_target);
+
+    // Stop Motor ----//
+    stop_motors();
+    return;
+  }
+}
+
+void avoid_obstacle(){
+  stop_motors();
+  if ( (!((double)BACK_RIGHT_longIR_reading() < 2*obstacle_detect)) || ((double)BACK_RIGHT_longIR_reading() > 10000)){ // Obstacle DOES NOT exist on right side
+    // Strafe right
+
+    dualPrintln((double)BACK_RIGHT_longIR_reading() < 2*obstacle_detect);
+    // Just keep strafing right until the front sensors don't detect anymore + strafe right for 1 more second
+    strafe_time(1000,RIGHT);
+
+  } else if ((!((double)BACK_LEFT_longIR_reading() < 2*obstacle_detect)) || ((double)BACK_LEFT_longIR_reading() > 10000)) { // Obstacle DOES NOT exist on left side
+    // Strafe left
+    dualPrintln((double)BACK_LEFT_longIR_reading() < 2*obstacle_detect);
+
+    // Just keep strafing left until the front sensors don't detect anymore + strafe left for 1 more second
+    strafe_time(1000,LEFT);
+
   }
 }
 
@@ -581,10 +590,7 @@ void find_corner() {
 
   // Quick Stop//
   delay(10);
-  left_front_motor.writeMicroseconds(0);
-  left_rear_motor.writeMicroseconds(0);
-  right_rear_motor.writeMicroseconds(0);
-  right_front_motor.writeMicroseconds(0);
+  stop_motors();
   delay(500);
   //----------//
 
@@ -620,10 +626,7 @@ void find_corner() {
 
   // Quick Stop//
   delay(10);
-  left_front_motor.writeMicroseconds(0);
-  left_rear_motor.writeMicroseconds(0);
-  right_rear_motor.writeMicroseconds(0);
-  right_front_motor.writeMicroseconds(0);
+  stop_motors();
   delay(500);
   //----------//
 
@@ -634,10 +637,7 @@ void find_corner() {
   // Checking if first reading is the long wall (at least 1500mm) // 
   if (first_reading >= 150) {
     // Stop Motor ----//
-    left_front_motor.writeMicroseconds(0);
-    left_rear_motor.writeMicroseconds(0);
-    right_rear_motor.writeMicroseconds(0);
-    right_front_motor.writeMicroseconds(0);
+    stop_motors();
 
     // Reset Things
     currentAngle = 0;
@@ -661,10 +661,7 @@ void find_corner() {
     turn_angle(90);
 
     // Stop Motor ----//
-    left_front_motor.writeMicroseconds(0);
-    left_rear_motor.writeMicroseconds(0);
-    right_rear_motor.writeMicroseconds(0);
-    right_front_motor.writeMicroseconds(0);
+    stop_motors();
 
     // Reset Things
     currentAngle = 0;
@@ -679,10 +676,7 @@ void find_corner() {
 
 
     // Stop Motor ----//
-    left_front_motor.writeMicroseconds(0);
-    left_rear_motor.writeMicroseconds(0);
-    right_rear_motor.writeMicroseconds(0);
-    right_front_motor.writeMicroseconds(0);
+    stop_motors();
 
     // Reset things
     currentAngle = 0;

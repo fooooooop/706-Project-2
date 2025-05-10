@@ -19,10 +19,9 @@ void strafe_right();
 // Custom functions
 void find_corner();
 void turn_angle(double target);
-void forward_target(double target_sidewall, double target, enum DIRECTION left_right, enum SPEED boostit);
-void reverse_target(double target_sidewall, double target, enum DIRECTION left_right, enum SPEED boostit);
-void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit);
+void strafe_time(double time_target, enum DIRECTION left_right);
 void forward_right();
 void forward_left();
+void avoid_obstacle();
 
 #endif  // MOVING_LOGIC_H

@@ -48,7 +48,6 @@ void read_serial_command() {
         cw();
         dualPrintln("Rotate CW executed");
         break;
-
       case '-':  // Decrease Speed
       case '_':
         speed_change = -50;
@@ -60,7 +59,7 @@ void read_serial_command() {
         dualPrintln("Speed increased");
         break;
 
-      case 'b':  // Request for status report
+      case 'b':  // Rotate on the spot
       case 'B':
         dualPrintln("Rotating");
         turn_angle(-90);
@@ -75,45 +74,6 @@ void read_serial_command() {
         dualPrintln(speed_val);
         dualPrintln(gyro_u);  // Keeping gyro_u only on Serial
         break;
-
-      case 'z':  // Find Corner
-      case 'Z':
-        dualPrintln("Find corner initiated");
-        find_corner();
-
-        Serial1.println("Tilling Started");
-        for (int i = 0; i < k; i++) {
-          Serial1.print(k);
-          Serial1.print(",");
-          Serial1.print(i);
-          Serial1.print(",");
-          Serial1.print(IR_value[i]);
-          Serial1.print(",");
-          Serial1.print(IR_pos[i]);
-          Serial1.print(",");
-          Serial1.println(US_value[i]);
-          delay(50);  // pace the output
-        }
-        
-        dualPrintln("Find corner executed");
-        break;
-        
-      case 'P': {
-        dualPrintln("Position test mode: Press any key to exit.");
-        while (!Serial1.available()) {
-          Position pos = updatePosition();
-          dualPrint("X: ");
-          dualPrint(pos.x);
-          dualPrint(" cm, Y: ");
-          dualPrint(pos.y);
-          dualPrint(" cm, Theta: ");
-          dualPrintln(pos.theta);
-          delay(500);
-        }
-        while (Serial1.available()) Serial1.read();
-        dualPrintln("Exiting position test mode.");
-        break;
-      }
 
       case 'x':  // Initiate forward_left()
       case 'X':
