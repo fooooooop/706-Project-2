@@ -43,8 +43,9 @@ STATE running() {
     // dualPrintln(FRONT_LEFT_shortIR_reading());
     // dualPrint("IR Sensor Back Left Long: ");
     // dualPrintln(BACK_LEFT_longIR_reading());
-    // dualPrint("IR Sensor Back Right  Long: ");
+    // dualPrint("IR Sensor Back Right Long: ");
     // dualPrintln(BACK_RIGHT_longIR_reading());
+    // dualPrintln(analogRead(TRANS_ELEVEN));
 
 #ifndef NO_READ_GYRO
     // GYRO_reading(500);
@@ -57,7 +58,7 @@ STATE running() {
 #endif
 
 #ifndef NO_BATTERY_V_OK
-    if (!is_battery_voltage_OK()) return STOPPED;
+    // if (!is_battery_voltage_OK()) return STOPPED;
 #endif
 
     // Update turret position as an example

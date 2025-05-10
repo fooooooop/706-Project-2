@@ -32,12 +32,15 @@ const byte right_front = 51;
 
 // IR sensor pins
 const int FRONT_LEFT_IR = A4;
-
-const int FRONT_RIGHT_IR = A14;
-
+const int FRONT_RIGHT_IR = A15;
 const int BACK_LEFT_IR = A5;
-
 const int BACK_RIGHT_IR = A6;
+
+// Phototransistor pins
+const int TRANS_EIGHT = A8;
+const int TRANS_NINE = A9;
+const int TRANS_TEN = A10;
+const int TRANS_ELEVEN = A11;
 
 extern SharpDistSensor FrontLeftIR;
 extern SharpDistSensor FrontRightIR;

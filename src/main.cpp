@@ -99,6 +99,12 @@ void setup(void) {
   delay(1000);
   dualPrintln("Setup....");
   delay(1000);
+
+  // Initialize phototransistor pins
+  pinMode(TRANS_EIGHT,INPUT);
+  pinMode(TRANS_NINE,INPUT);
+  pinMode(TRANS_TEN,INPUT);
+  pinMode(TRANS_ELEVEN,INPUT);
 }
 
 void loop(void) {

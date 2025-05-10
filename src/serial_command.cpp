@@ -48,6 +48,7 @@ void read_serial_command() {
         cw();
         dualPrintln("Rotate CW executed");
         break;
+
       case '-':  // Decrease Speed
       case '_':
         speed_change = -50;
@@ -57,6 +58,12 @@ void read_serial_command() {
       case '+':  // Increase Speed
         speed_change = 50;
         dualPrintln("Speed increased");
+        break;
+
+      case 'b':  // Request for status report
+      case 'B':
+        dualPrintln("Rotating");
+        turn_angle(-90);
         break;
 
       case 'r':  // Request for status report

@@ -1,11 +1,11 @@
 #include "sensors.h"
 
 #define MEDIAN_WINDOW 3
-#define OVERALL_IR_OFFSET 69
-#define FRONT_LEFT_IR_OFFSET 0
-#define FRONT_RIGHT_IR_OFFSET -60
-#define BACK_LEFT_IR_OFFSET 10
-#define BACK_RIGHT_IR_OFFSET -31
+#define OVERALL_IR_OFFSET 0
+#define FRONT_LEFT_IR_OFFSET 90
+#define FRONT_RIGHT_IR_OFFSET 0
+#define BACK_LEFT_IR_OFFSET -20
+#define BACK_RIGHT_IR_OFFSET -250
 
 #ifndef NO_HC_SR04
 
@@ -178,10 +178,10 @@ boolean is_battery_voltage_OK() {
   Lipo_level_cal = Lipo_level_cal / 143;
 
   if (Lipo_level_cal > 0 && Lipo_level_cal < 160) {
-    dualPrint("Lipo level:");
-    dualPrint(Lipo_level_cal);
-    dualPrint("%");
-    dualPrintln("");
+    // dualPrint("Lipo level:");
+    // dualPrint(Lipo_level_cal);
+    // dualPrint("%");
+    // dualPrintln("");
     Low_voltage_counter = 0;
     return true;
   } else {
