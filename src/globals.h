@@ -8,6 +8,7 @@
 #include "SharpIR.h"
 #include "dual_serial.h"
 
+// change back to 5
 #define MEDIAN_WINDOW_FR 5
 #define MEDIAN_WINDOW_FL 5
 #define MEDIAN_WINDOW_BR 5
@@ -34,7 +35,7 @@ const byte right_front = 51;
 const int FRONT_LEFT_IR = A4;
 const int FRONT_RIGHT_IR = A15;
 const int BACK_LEFT_IR = A5;
-const int BACK_RIGHT_IR = A6;
+const int BACK_RIGHT_IR = A14;
 
 // Phototransistor pins
 const int TRANS_EIGHT = A8;    // Front Left

@@ -1,11 +1,10 @@
 #include "sensors.h"
 
-#define MEDIAN_WINDOW 3
 #define OVERALL_IR_OFFSET 0
-#define FRONT_LEFT_IR_OFFSET 90
-#define FRONT_RIGHT_IR_OFFSET 0
-#define BACK_LEFT_IR_OFFSET -20
-#define BACK_RIGHT_IR_OFFSET -250
+#define FRONT_LEFT_IR_OFFSET -30
+#define FRONT_RIGHT_IR_OFFSET -40
+#define BACK_LEFT_IR_OFFSET 0
+#define BACK_RIGHT_IR_OFFSET 0
 
 #ifndef NO_HC_SR04
 
