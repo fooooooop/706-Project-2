@@ -37,10 +37,10 @@ const int BACK_LEFT_IR = A5;
 const int BACK_RIGHT_IR = A6;
 
 // Phototransistor pins
-const int TRANS_EIGHT = A8;
-const int TRANS_NINE = A9;
-const int TRANS_TEN = A10;
-const int TRANS_ELEVEN = A11;
+const int TRANS_EIGHT = A8;    // Front Left
+const int TRANS_NINE = A9;     // Left
+const int TRANS_TEN = A10;     // Right
+const int TRANS_ELEVEN = A11;  // Front Right
 
 extern SharpDistSensor FrontLeftIR;
 extern SharpDistSensor FrontRightIR;

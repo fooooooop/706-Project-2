@@ -142,6 +142,44 @@ void read_serial_command() {
         dualPrintln("Ultrasonic reading done!");
         break;
 
+      case '0':
+        dualPrintln("Front Left PT sensor reading initiated");
+        while (Serial1.read() != '9') {
+          dualPrint(FRONT_LEFT_PT_reading());
+          dualPrintln(" mm");
+          delay(100);
+        }
+        dualPrintln("Front Left PT sensor reading done!");
+        break;
+      case '6':
+        dualPrintln("Front Right PT sensor reading initiated");
+        while (Serial1.read() != '9') {
+          dualPrint(FRONT_RIGHT_PT_reading());
+          dualPrintln(" mm");
+          delay(100);
+        }
+        dualPrintln("Front Right PT sensor reading done!");
+        break;
+      case '7':
+        dualPrintln("Left PT sensor reading initiated");
+        while (Serial1.read() != '9') {
+          dualPrint(LEFT_PT_reading());
+          dualPrintln(" mm");
+          delay(100);
+        }
+        dualPrintln("Left PT sensor reading done!");
+        break;
+
+      case '8':
+        dualPrintln("Right PT sensor reading initiated");
+        while (Serial1.read() != '9') {
+          dualPrint(RIGHT_PT_reading());
+          dualPrintln(" mm");
+          delay(100);
+        }
+        dualPrintln("Right PT sensor reading done!");
+        break;
+
       case 'c':  // Initiate forward_right()
       case 'C':
         dualPrintln("Loop forward_right initiated");

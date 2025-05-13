@@ -132,6 +132,12 @@ uint16_t BACK_RIGHT_longIR_reading() {
   return BackRightIR.getDist() + OVERALL_IR_OFFSET + BACK_RIGHT_IR_OFFSET;
 }
 
+// Return PT sensor readings
+uint16_t FRONT_LEFT_PT_reading() { return analogRead(TRANS_EIGHT); }
+uint16_t FRONT_RIGHT_PT_reading() { return analogRead(TRANS_ELEVEN); }
+uint16_t LEFT_PT_reading() { return analogRead(TRANS_NINE); }
+uint16_t RIGHT_PT_reading() { return analogRead(TRANS_TEN); }
+
 #ifndef NO_READ_GYRO
 void GYRO_reading(double T) {
   // T is delay for loop
@@ -186,9 +192,9 @@ boolean is_battery_voltage_OK() {
     return true;
   } else {
     if (Lipo_level_cal < 0)
-    dualPrintln("Lipo is Disconnected or Power Switch is turned OFF!!!");
+      dualPrintln("Lipo is Disconnected or Power Switch is turned OFF!!!");
     else if (Lipo_level_cal > 160)
-    dualPrintln("!Lipo is Overcharged!!!");
+      dualPrintln("!Lipo is Overcharged!!!");
     else {
       dualPrintln(
           "Lipo voltage too LOW, any lower and the lipo will be damaged");

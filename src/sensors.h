@@ -24,6 +24,18 @@ uint16_t BACK_LEFT_longIR_reading();
 // // BACK_RIGHT_IR
 uint16_t BACK_RIGHT_longIR_reading();
 
+// // FRONT_LEFT_PT
+uint16_t FRONT_LEFT_PT_reading();
+
+// // FRONT_RIGHT_PT
+uint16_t FRONT_RIGHT_PT_reading();
+
+// // LEFT_PT
+uint16_t LEFT_PT_reading();
+
+// // RIGHT_PT
+uint16_t RIGHT_PT_reading();
+
 #ifndef NO_READ_GYRO
 void GYRO_reading(double T);
 #endif
