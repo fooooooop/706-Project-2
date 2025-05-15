@@ -38,7 +38,9 @@ void forward() {
     right_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u);
     right_front_motor.writeMicroseconds(1500 - speed_val + gyro_u);
 
-    if (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) || ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect)) avoid_obstacle();
+    if (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) ||
+        ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect))
+      avoid_obstacle();
   }
 
   // Stop Motor ----//
@@ -53,7 +55,9 @@ void reverse() {
     right_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u);
     right_front_motor.writeMicroseconds(1500 + speed_val + gyro_u);
 
-    if (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) || ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect)) avoid_obstacle();
+    if (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) ||
+        ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect))
+      avoid_obstacle();
   }
 
   // Stop Motor ----//
@@ -88,11 +92,9 @@ void strafe_right() {
   // right_front_motor.writeMicroseconds(1500 + speed_val);
 }
 
-
 //-------------------------------------------------//
 //------------Custom Functions---------------------//
 //-------------------------------------------------//
-
 
 void turn_angle(double target) {
   bool gyro_exit = false;
@@ -132,7 +134,8 @@ void turn_angle(double target) {
   }
 }
 
-void forward_target(double target_sidewall, double target, enum DIRECTION left_right, enum SPEED boostit) {
+void forward_target(double target_sidewall, double target,
+                    enum DIRECTION left_right, enum SPEED boostit) {
   boostit == FAST ? speed_val = 350 : speed_val = 165;
 
   do {
@@ -147,7 +150,8 @@ void forward_target(double target_sidewall, double target, enum DIRECTION left_r
     // IR_u based on strafe_left function
 
     // Exit Condition - when ultrasonic sensor reaches target//
-  } while (1); //(US_value[k] > target); Ultrasonic sensor isn't a thing right now
+  } while (
+      1);  //(US_value[k] > target); Ultrasonic sensor isn't a thing right now
 
   // Stop Motor ----//
   stop_motors();
@@ -159,7 +163,8 @@ void forward_target(double target_sidewall, double target, enum DIRECTION left_r
   IR_err_previous = 0;
 }
 
-void reverse_target(double target_sidewall, double target, enum DIRECTION left_right, enum SPEED boostit) {
+void reverse_target(double target_sidewall, double target,
+                    enum DIRECTION left_right, enum SPEED boostit) {
   boostit == FAST ? speed_val = 350 : speed_val = 165;
 
   do {
@@ -174,7 +179,8 @@ void reverse_target(double target_sidewall, double target, enum DIRECTION left_r
     // IR_u based on strafe_left function
 
     // Exit Condition - when ultrasonic sensor reaches target//
-  } while(1); //(US_value[k] < target); Ultrasonic sensor isn't a thing right now
+  } while (
+      1);  //(US_value[k] < target); Ultrasonic sensor isn't a thing right now
 
   // Stop Motor ----//
   stop_motors();
@@ -186,7 +192,8 @@ void reverse_target(double target_sidewall, double target, enum DIRECTION left_r
   IR_err_previous = 0;
 }
 
-void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit) {
+void strafe_target(double target, enum DIRECTION left_right,
+                   enum SPEED boostit) {
   bool strafe_exit = false;
   bool strafe_timestart = false;
   double IR_err_pos = 0;
@@ -194,22 +201,22 @@ void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit)
   double gyro_err_pos;
   double gyro_bounds = 100;
   double strafe_timer = 0;
-  double timer_stop = millis(); // For redundancy
+  double timer_stop = millis();  // For redundancy
 
-  if (boostit == SLOW){
+  if (boostit == SLOW) {
     // Strafe to a target by "pushing" off a wall-----//
     while (strafe_exit == false) {
       // Start Strafing------------//
       gyro_err_pos = GYRO_controller(0, 6, 0, 0);
       IR_err_pos = IR_controller(target, AWD, left_right, 1.0, 0.01, 0.05);
       // IR_err_Fpos = IR_controller(target, FWD, left_right, 3.0, 0.0015, 0);
-      // IR_err_Bpos = IR_controller(target, RWD, left_right, 3.0, 0.0015, 0);  
+      // IR_err_Bpos = IR_controller(target, RWD, left_right, 3.0, 0.0015, 0);
 
       left_front_motor.writeMicroseconds(1500 + gyro_u - IR_u);
       left_rear_motor.writeMicroseconds(1500 + gyro_u + IR_u);
       right_rear_motor.writeMicroseconds(1500 + gyro_u + IR_u);
       right_front_motor.writeMicroseconds(1500 + gyro_u - IR_u);
-      
+
       // left_front_motor.writeMicroseconds(1500 + gyro_u - IRFront_u);
       // left_rear_motor.writeMicroseconds(1500 + gyro_u + IRBack_u);
       // right_rear_motor.writeMicroseconds(1500 + gyro_u + IRBack_u);
@@ -217,29 +224,29 @@ void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit)
 
       // Exit Condition-----//
       if (((abs(gyro_err_pos) < gyro_bounds) &&
-          (abs(IR_err_pos) < strafe_bounds)) &&
+           (abs(IR_err_pos) < strafe_bounds)) &&
           (strafe_timestart != true)) {
         // Checks to see if yss is within exit threshold, start timer
         strafe_timestart = true;
         strafe_timer = millis();
       }
       if (((abs(gyro_err_pos) > gyro_bounds) ||
-          (abs(IR_err_pos) > strafe_bounds)) &&
+           (abs(IR_err_pos) > strafe_bounds)) &&
           (strafe_timestart == true)) {
         // Checks to see if yss falls outside of exit threshold
         // If it does, then restart timer
         strafe_timestart = false;
 
       } else if ((millis() - strafe_timer > 1000.0) &&
-                ((abs(gyro_err_pos) < gyro_bounds) &&
-                (abs(IR_err_pos) < strafe_bounds)) &&
-                (strafe_timestart == true)) {
+                 ((abs(gyro_err_pos) < gyro_bounds) &&
+                  (abs(IR_err_pos) < strafe_bounds)) &&
+                 (strafe_timestart == true)) {
         // Else, if yss is within threshold for a certain amount of time (check
         // first condition), exit controller
         strafe_exit = true;
       }
 
-      //REDUNDANCY
+      // REDUNDANCY
       if (millis() - timer_stop > 10000) break;
     }
 
@@ -257,7 +264,6 @@ void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit)
     return;
 
   } else if (boostit == FAST) {
-
     do {
       // Start Strafing------------//
       gyro_err_pos = GYRO_controller(0, 6, 0, 0);
@@ -285,12 +291,12 @@ void strafe_target(double target, enum DIRECTION left_right, enum SPEED boostit)
   }
 }
 
-void strafe_time(double time_target, enum DIRECTION left_right){
+void strafe_time(double time_target, enum DIRECTION left_right) {
   double timer_stop;
   double strafe_power = 100;
 
   if (left_right == RIGHT) {
-    do { // Strafe Right until front doesn't see obstacle
+    do {  // Strafe Right until front doesn't see obstacle
       // Start Strafing------------//
       GYRO_controller(0, 6, 0, 0);
 
@@ -299,10 +305,11 @@ void strafe_time(double time_target, enum DIRECTION left_right){
       right_rear_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
       right_front_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
 
-    } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) && ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect));
+    } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) &&
+             ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect));
 
     timer_stop = millis();
-    do { // Strafe Right to clear wheel
+    do {  // Strafe Right to clear wheel
       // Start Strafing------------//
       GYRO_controller(0, 6, 0, 0);
 
@@ -317,7 +324,7 @@ void strafe_time(double time_target, enum DIRECTION left_right){
     stop_motors();
     return;
   } else if (left_right == LEFT) {
-    do { // Strafe Right until front doesn't see obstacle
+    do {  // Strafe Right until front doesn't see obstacle
       // Start Strafing------------//
       GYRO_controller(0, 6, 0, 0);
 
@@ -326,10 +333,11 @@ void strafe_time(double time_target, enum DIRECTION left_right){
       right_rear_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
       right_front_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
 
-    } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) && ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect));
+    } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) &&
+             ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect));
 
     timer_stop = millis();
-    do { // Strafe Right to clear wheel
+    do {  // Strafe Right to clear wheel
       // Start Strafing------------//
       GYRO_controller(0, 6, 0, 0);
 
@@ -346,35 +354,39 @@ void strafe_time(double time_target, enum DIRECTION left_right){
   }
 }
 
-void avoid_obstacle(){
+void avoid_obstacle() {
   stop_motors();
-  if ( (!((double)BACK_RIGHT_longIR_reading() < 2*obstacle_detect)) || ((double)BACK_RIGHT_longIR_reading() > 10000)){ // Obstacle DOES NOT exist on right side
+  if ((!((double)BACK_RIGHT_longIR_reading() < 2 * obstacle_detect)) ||
+      ((double)BACK_RIGHT_longIR_reading() >
+       10000)) {  // Obstacle DOES NOT exist on right side
     // Strafe right
 
-    dualPrintln((double)BACK_RIGHT_longIR_reading() < 2*obstacle_detect);
-    // Just keep strafing right until the front sensors don't detect anymore + strafe right for 1 more second
-    strafe_time(1000,RIGHT);
+    dualPrintln((double)BACK_RIGHT_longIR_reading() < 2 * obstacle_detect);
+    // Just keep strafing right until the front sensors don't detect anymore +
+    // strafe right for 1 more second
+    strafe_time(1000, RIGHT);
 
-  } else if ((!((double)BACK_LEFT_longIR_reading() < 2*obstacle_detect)) || ((double)BACK_LEFT_longIR_reading() > 10000)) { // Obstacle DOES NOT exist on left side
+  } else if ((!((double)BACK_LEFT_longIR_reading() < 2 * obstacle_detect)) ||
+             ((double)BACK_LEFT_longIR_reading() >
+              10000)) {  // Obstacle DOES NOT exist on left side
     // Strafe left
-    dualPrintln((double)BACK_LEFT_longIR_reading() < 2*obstacle_detect);
+    dualPrintln((double)BACK_LEFT_longIR_reading() < 2 * obstacle_detect);
 
-    // Just keep strafing left until the front sensors don't detect anymore + strafe left for 1 more second
-    strafe_time(1000,LEFT);
-
+    // Just keep strafing left until the front sensors don't detect anymore +
+    // strafe left for 1 more second
+    strafe_time(1000, LEFT);
   }
 }
 
 void forward_right() {
-
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
     BACK_RIGHT_longIR_reading();
   }
   forward_target(160, FORWARD_BOUND, LEFT, SLOW);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -382,7 +394,7 @@ void forward_right() {
   }
   strafe_target(300, LEFT, FAST);
   reverse_target(300, BACKWARD_BOUND, LEFT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -390,7 +402,7 @@ void forward_right() {
   }
   strafe_target(400, LEFT, FAST);
   forward_target(400, FORWARD_BOUND, LEFT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -398,7 +410,7 @@ void forward_right() {
   }
   strafe_target(500, LEFT, FAST);
   reverse_target(500, BACKWARD_BOUND, LEFT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -406,9 +418,8 @@ void forward_right() {
   }
   strafe_target(640, LEFT, FAST);
   forward_target(640, FORWARD_BOUND, LEFT, FAST);
-  
 
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -416,7 +427,7 @@ void forward_right() {
   }
   strafe_target(660, RIGHT, FAST);
   reverse_target(660, BACKWARD_BOUND, RIGHT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -424,7 +435,7 @@ void forward_right() {
   }
   strafe_target(500, RIGHT, FAST);
   forward_target(500, FORWARD_BOUND, RIGHT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -432,7 +443,7 @@ void forward_right() {
   }
   strafe_target(390, RIGHT, FAST);
   reverse_target(390, BACKWARD_BOUND, RIGHT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -440,7 +451,7 @@ void forward_right() {
   }
   strafe_target(230, RIGHT, FAST);
   forward_target(230, FORWARD_BOUND, RIGHT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -452,7 +463,7 @@ void forward_right() {
 }
 
 void forward_left() {
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -460,7 +471,7 @@ void forward_left() {
     HC_SR04_range();
   }
   forward_target(80, FORWARD_BOUND, RIGHT, SLOW);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -469,7 +480,7 @@ void forward_left() {
   }
   strafe_target(230, RIGHT, FAST);
   reverse_target(230, BACKWARD_BOUND, RIGHT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -478,7 +489,7 @@ void forward_left() {
   }
   strafe_target(390, RIGHT, FAST);
   forward_target(390, FORWARD_BOUND, RIGHT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -487,7 +498,7 @@ void forward_left() {
   }
   strafe_target(500, RIGHT, FAST);
   reverse_target(500, BACKWARD_BOUND, RIGHT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -497,8 +508,7 @@ void forward_left() {
   strafe_target(660, RIGHT, FAST);
   forward_target(660, FORWARD_BOUND, RIGHT, FAST);
 
-
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -507,7 +517,7 @@ void forward_left() {
   }
   strafe_target(640, LEFT, FAST);
   reverse_target(640, BACKWARD_BOUND, LEFT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -516,7 +526,7 @@ void forward_left() {
   }
   strafe_target(500, LEFT, FAST);
   forward_target(500, FORWARD_BOUND, LEFT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -525,7 +535,7 @@ void forward_left() {
   }
   strafe_target(400, LEFT, FAST);
   reverse_target(400, BACKWARD_BOUND, LEFT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -534,7 +544,7 @@ void forward_left() {
   }
   strafe_target(300, LEFT, FAST);
   forward_target(300, FORWARD_BOUND, LEFT, FAST);
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 5; i++) {
     FRONT_LEFT_shortIR_reading();
     FRONT_RIGHT_shortIR_reading();
     BACK_LEFT_longIR_reading();
@@ -587,7 +597,7 @@ void find_corner() {
       strafe_exit = true;
 
       IRFront_u = 0;
-      IRBack_u = 0; 
+      IRBack_u = 0;
     }
   }
 
@@ -637,7 +647,7 @@ void find_corner() {
   turn_angle(90);
   float first_reading = HC_SR04_range();
 
-  // Checking if first reading is the long wall (at least 1500mm) // 
+  // Checking if first reading is the long wall (at least 1500mm) //
   if (first_reading >= 150) {
     // Stop Motor ----//
     stop_motors();
@@ -658,7 +668,6 @@ void find_corner() {
   turn_angle(179.5);
   float second_reading = HC_SR04_range();
 
-  
   // Align along long wall and zero robot //
   if (first_reading > second_reading) {
     turn_angle(90);
@@ -676,14 +685,12 @@ void find_corner() {
 
     forward_right();  // Start Tilling
   } else {
-
-
     // Stop Motor ----//
     stop_motors();
 
     // Reset things
     currentAngle = 0;
-    IR_u = 0; //Idk, it's to not make the IR controller crazy.
+    IR_u = 0;  // Idk, it's to not make the IR controller crazy.
     IR_err_mem = 0;
     IR_err_mem_back = 0;
     IR_err_mem_front = 0;
@@ -696,47 +703,54 @@ void find_corner() {
 }
 
 void find_light() {
-  if (Serial.read() == 'v') { // force quit.
+  if (Serial.read() == 'v') {  // force quit.
     stop_motors();
     return;
   }
 
-  float detection_threshold = 50; // light is clearly detected when the PT reading is ~1000mm, ~0mm when not. 300 is just a temporary value.
-  
-  bool left_detected; // 0 when the left PT is not detecting light, 1 if it is
-  bool front_left_detected; // 0 when the front left PT is not detecting light, 1 if it is
-  bool front_right_detected; // 0 when the front right PT is not detecting light, 1 if it is
-  bool right_detected; // 0 when the right PT is not detecting light, 1 if it is
-  
+  float detection_threshold =
+      50;  // light is clearly detected when the PT reading is ~1000mm, ~0mm
+           // when not. 300 is just a temporary value.
+
+  bool left_detected;  // 0 when the left PT is not detecting light, 1 if it is
+  bool front_left_detected;  // 0 when the front left PT is not detecting light,
+                             // 1 if it is
+  bool front_right_detected;  // 0 when the front right PT is not detecting
+                              // light, 1 if it is
+  bool
+      right_detected;  // 0 when the right PT is not detecting light, 1 if it is
+
   // Step 1: Check which PTs detect light
-  if (LEFT_PT_reading() > detection_threshold) { 
+  if (LEFT_PT_reading() > detection_threshold) {
     left_detected = 1;
   } else {
     left_detected = 0;
   }
-  
+
   if (FRONT_LEFT_PT_reading() > detection_threshold) {
     front_left_detected = 1;
   } else {
     front_left_detected = 0;
   }
-  
+
   if (FRONT_RIGHT_PT_reading() > detection_threshold) {
     front_right_detected = 1;
   } else {
     front_right_detected = 0;
   }
-  
+
   if (RIGHT_PT_reading() > detection_threshold) {
     right_detected = 1;
   } else {
     right_detected = 0;
   }
 
-  // Step 2: If no PT can see light, CW until the front right and front left ones can.
-  if ((!left_detected && !right_detected && !front_left_detected && !front_right_detected) || right_detected || front_right_detected){
+  // Step 2: If no PT can see light, CW until the front right and front left
+  // ones can.
+  if ((!left_detected && !right_detected && !front_left_detected &&
+       !front_right_detected) ||
+      right_detected || front_right_detected) {
     while (!(front_left_detected && front_right_detected)) {
-
       if (FRONT_LEFT_PT_reading() > detection_threshold) {
         front_left_detected = 1;
       } else {
@@ -754,7 +768,6 @@ void find_light() {
     stop_motors();
   } else if (left_detected || front_left_detected) {
     while (!(front_left_detected && front_right_detected)) {
-
       if (FRONT_LEFT_PT_reading() > detection_threshold) {
         front_left_detected = 1;
       } else {
@@ -771,7 +784,6 @@ void find_light() {
 
     stop_motors();
   }
-  
-  
+
   return;
 }

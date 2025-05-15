@@ -9,11 +9,9 @@
 // --- Wireless Command Parsing ---
 // This function now listens on Serial1 (the HC‑12)
 
-
-
 void read_serial_command() {
-  if (Serial.available()) {
-    char val = Serial.read();
+  if (Serial1.available()) {
+    char val = Serial1.read();
     dualPrint("Received command: ");
     dualPrintln(String(val));
     dualPrint("Speed: ");
@@ -89,7 +87,7 @@ void read_serial_command() {
       // pressed  to stpo
       case '1':
         dualPrintln("Front Left IR sensor reading initiated");
-        while (Serial.read() != '9') {
+        while (Serial1.read() != '9') {
           dualPrint("Front left IR reading: ");
           dualPrint(FRONT_LEFT_shortIR_reading());
           dualPrintln("mm");
@@ -102,7 +100,7 @@ void read_serial_command() {
         // is pressed  to stop
       case '2':
         dualPrintln("Front Right IR sensor reading initiated");
-        while (Serial.read() != '9') {
+        while (Serial1.read() != '9') {
           dualPrint("Front right IR reading: ");
           dualPrint(FRONT_RIGHT_shortIR_reading());
           dualPrintln("mm");
@@ -115,7 +113,7 @@ void read_serial_command() {
         // is pressed  to stop
       case '3':
         dualPrintln("Back Left IR sensor reading initiated");
-        while (Serial.read() != '9') {
+        while (Serial1.read() != '9') {
           dualPrint("Back left IR reading: ");
           dualPrint(BACK_LEFT_longIR_reading());
           dualPrintln(" mm");
@@ -128,7 +126,7 @@ void read_serial_command() {
         // is pressed  to stop
       case '4':
         dualPrintln("Back Right IR sensor reading initiated");
-        while (Serial.read() != '9') {
+        while (Serial1.read() != '9') {
           dualPrint("Back right IR reading: ");
           dualPrint(BACK_RIGHT_longIR_reading());
           dualPrintln(" mm");
@@ -139,7 +137,7 @@ void read_serial_command() {
 
       case '5':
         dualPrintln("Ultrasonic Sensor reading initiated");
-        while (Serial.read() != '9') {
+        while (Serial1.read() != '9') {
           float distance = HC_SR04_range();
           dualPrint("Ultrasonic Distance: ");
           dualPrint(distance);
@@ -151,7 +149,7 @@ void read_serial_command() {
 
       case '0':
         dualPrintln("Front Left PT sensor reading initiated");
-        while (Serial.read() != '9') {
+        while (Serial1.read() != '9') {
           dualPrint("Front left PT reading: ");
           dualPrint(FRONT_LEFT_PT_reading());
           dualPrintln(" mm");
@@ -161,7 +159,7 @@ void read_serial_command() {
         break;
       case '6':
         dualPrintln("Front Right PT sensor reading initiated");
-        while (Serial.read() != '9') {
+        while (Serial1.read() != '9') {
           dualPrint("Front right PT reading: ");
           dualPrint(FRONT_RIGHT_PT_reading());
           dualPrintln(" mm");
@@ -171,7 +169,7 @@ void read_serial_command() {
         break;
       case '7':
         dualPrintln("Left PT sensor reading initiated");
-        while (Serial.read() != '9') {
+        while (Serial1.read() != '9') {
           dualPrint("Left PT reading: ");
           dualPrint(LEFT_PT_reading());
           dualPrintln(" mm");
@@ -182,7 +180,7 @@ void read_serial_command() {
 
       case '8':
         dualPrintln("Right PT sensor reading initiated");
-        while (Serial.read() != '9') {
+        while (Serial1.read() != '9') {
           dualPrint("Right PT reading: ");
           dualPrint(RIGHT_PT_reading());
           dualPrintln(" mm");
@@ -197,7 +195,7 @@ void read_serial_command() {
         forward_right();
         dualPrintln("Loop forward_right done!");
         break;
-      
+
       case 'p':
       case 'P':
         while (1) {
