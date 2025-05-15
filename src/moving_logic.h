@@ -18,9 +18,8 @@ void strafe_right();
 
 // Custom functions
 void find_corner();
-void find_light();
+bool find_light();
 void turn_angle(double target);
-void strafe_time(double time_target, enum DIRECTION left_right);
 void forward_right();
 void forward_left();
 void avoid_obstacle();

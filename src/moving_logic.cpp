@@ -31,7 +31,8 @@ void stop_motors() {
 }
 
 void forward() {
-  while (Serial.read() != 'v') {
+  bool light_detected = find_light();
+  while (light_detected) {
     GYRO_controller(0, 20.5, 0, 0);
     left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u);
     left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u);
@@ -659,88 +660,47 @@ void find_corner() {
   return;
 }
 
-void find_light() {
+bool find_light() {
   if (Serial.read() == 'v') {  // force quit.
     stop_motors();
-    return;
+    return 0;
   }
 
-  float detection_threshold =
-      50;  // light is clearly detected when the PT reading is ~1000mm, ~0mm
-           // when not. 300 is just a temporary value.
+  float detection_threshold = 50; // light is clearly detected when the PT reading is ~1000mm, ~0mm
+                                  // when not. 300 is just a temporary value.
 
   bool left_detected;  // 0 when the left PT is not detecting light, 1 if it is
-  bool front_left_detected;  // 0 when the front left PT is not detecting light,
-                             // 1 if it is
-  bool front_right_detected;  // 0 when the front right PT is not detecting
-                              // light, 1 if it is
-  bool
-      right_detected;  // 0 when the right PT is not detecting light, 1 if it is
+  bool front_left_detected;  // 0 when the front left PT is not detecting light, 1 if it is
+  bool front_right_detected;  // 0 when the front right PT is not detecting light, 1 if it is
+  bool right_detected;  // 0 when the right PT is not detecting light, 1 if it is
 
   // Step 1: Check which PTs detect light
-  if (LEFT_PT_reading() > detection_threshold) {
-    left_detected = 1;
-  } else {
-    left_detected = 0;
-  }
+  left_detected = (LEFT_PT_reading() > detection_threshold) ? 1 : 0;
+  front_left_detected = (FRONT_LEFT_PT_reading() > detection_threshold) ? 1 : 0;
+  front_right_detected = (FRONT_RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
+  right_detected = (RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
 
-  if (FRONT_LEFT_PT_reading() > detection_threshold) {
-    front_left_detected = 1;
-  } else {
-    front_left_detected = 0;
-  }
+  // Step 2: If no PT can see light, CW until the front right and front left ones can.
+  if ((!left_detected && !right_detected && !front_left_detected && !front_right_detected) || // This part CW until the front PTs detect light
+      right_detected || front_right_detected) { // This part finds light on right side of robot
 
-  if (FRONT_RIGHT_PT_reading() > detection_threshold) {
-    front_right_detected = 1;
-  } else {
-    front_right_detected = 0;
-  }
-
-  if (RIGHT_PT_reading() > detection_threshold) {
-    right_detected = 1;
-  } else {
-    right_detected = 0;
-  }
-
-  // Step 2: If no PT can see light, CW until the front right and front left
-  // ones can.
-  if ((!left_detected && !right_detected && !front_left_detected &&
-       !front_right_detected) ||
-      right_detected || front_right_detected) {
     while (!(front_left_detected && front_right_detected)) {
-      if (FRONT_LEFT_PT_reading() > detection_threshold) {
-        front_left_detected = 1;
-      } else {
-        front_left_detected = 0;
-      }
-
-      if (FRONT_RIGHT_PT_reading() > detection_threshold) {
-        front_right_detected = 1;
-      } else {
-        front_right_detected = 0;
-      }
+      front_left_detected = (FRONT_LEFT_PT_reading() > detection_threshold) ? 1 : 0;
+      front_right_detected = (FRONT_RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
       cw();
     }
-
     stop_motors();
-  } else if (left_detected || front_left_detected) {
-    while (!(front_left_detected && front_right_detected)) {
-      if (FRONT_LEFT_PT_reading() > detection_threshold) {
-        front_left_detected = 1;
-      } else {
-        front_left_detected = 0;
-      }
 
-      if (FRONT_RIGHT_PT_reading() > detection_threshold) {
-        front_right_detected = 1;
-      } else {
-        front_right_detected = 0;
-      }
+  } else if (left_detected || front_left_detected) { // This part finds light on left side of robot
+
+    while (!(front_left_detected && front_right_detected)) {
+      front_left_detected = (FRONT_LEFT_PT_reading() > detection_threshold) ? 1 : 0;
+      front_right_detected = (FRONT_RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
       ccw();
     }
-
     stop_motors();
+
   }
 
-  return;
+  return (front_left_detected || front_right_detected || right_detected || left_detected);
 }
