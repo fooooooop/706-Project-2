@@ -18,7 +18,7 @@ short k = 0;
 long global_timesnap = 0;
 
 // Speed Control
-int speed_val = 125;
+int speed_val = 150;
 int speed_change = 0;
 
 int pos = 0;  // turret pos?

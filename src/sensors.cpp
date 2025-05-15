@@ -106,11 +106,11 @@ float HC_SR04_range() {
     dualPrintln("HC-SR04: Out of range");
   } else {
     // dualPrintln("HC-SR04:");
-    // dualPrintln(cm);
-    // dualPrintln("cm");
+    // dualPrintln(cm*10);
+    // dualPrintln("mm");
   }
 
-  return cm;
+  return cm*10;
 }
 #endif
 

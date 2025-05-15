@@ -39,7 +39,8 @@ void forward() {
     right_front_motor.writeMicroseconds(1500 - speed_val + gyro_u);
 
     if (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) ||
-        ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect))
+        ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect) ||
+        ((double)HC_SR04_range() < obstacle_detect))
       avoid_obstacle();
   }
 
@@ -56,7 +57,8 @@ void reverse() {
     right_front_motor.writeMicroseconds(1500 + speed_val + gyro_u);
 
     if (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) ||
-        ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect))
+        ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect) ||
+        ((double)HC_SR04_range() < obstacle_detect))
       avoid_obstacle();
   }
 
@@ -291,91 +293,46 @@ void strafe_target(double target, enum DIRECTION left_right,
   }
 }
 
-void strafe_time(double time_target, enum DIRECTION left_right) {
-  double timer_stop;
-  double strafe_power = 100;
-
-  if (left_right == RIGHT) {
-    do {  // Strafe Right until front doesn't see obstacle
-      // Start Strafing------------//
-      GYRO_controller(0, 6, 0, 0);
-
-      left_front_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
-      right_front_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
-
-    } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) &&
-             ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect));
-
-    timer_stop = millis();
-    do {  // Strafe Right to clear wheel
-      // Start Strafing------------//
-      GYRO_controller(0, 6, 0, 0);
-
-      left_front_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
-      right_front_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
-
-    } while (millis() - timer_stop < time_target);
-
-    // Stop Motor ----//
-    stop_motors();
-    return;
-  } else if (left_right == LEFT) {
-    do {  // Strafe Right until front doesn't see obstacle
-      // Start Strafing------------//
-      GYRO_controller(0, 6, 0, 0);
-
-      left_front_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
-      right_front_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
-
-    } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) &&
-             ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect));
-
-    timer_stop = millis();
-    do {  // Strafe Right to clear wheel
-      // Start Strafing------------//
-      GYRO_controller(0, 6, 0, 0);
-
-      left_front_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u + strafe_power);
-      right_front_motor.writeMicroseconds(1500 + gyro_u - strafe_power);
-
-    } while (millis() - timer_stop < time_target);
-
-    // Stop Motor ----//
-    stop_motors();
-    return;
-  }
-}
-
 void avoid_obstacle() {
   stop_motors();
-  if ((!((double)BACK_RIGHT_longIR_reading() < 2 * obstacle_detect)) ||
-      ((double)BACK_RIGHT_longIR_reading() >
-       10000)) {  // Obstacle DOES NOT exist on right side
-    // Strafe right
+  if ((!((double)BACK_RIGHT_longIR_reading() < obstacle_detect)) || 
+       ((double)BACK_RIGHT_longIR_reading() > 10000)) {  // Obstacle DOES NOT exist on right side
+    
+    do {  // Strafe Right until front doesn't see obstacle
+      // Start Strafing------------//
+      GYRO_controller(0, 6, 0, 0);
 
-    dualPrintln((double)BACK_RIGHT_longIR_reading() < 2 * obstacle_detect);
-    // Just keep strafing right until the front sensors don't detect anymore +
-    // strafe right for 1 more second
-    strafe_time(1000, RIGHT);
+      left_front_motor.writeMicroseconds(1500 + gyro_u + speed_val);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u - speed_val);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u - speed_val);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + speed_val);
 
-  } else if ((!((double)BACK_LEFT_longIR_reading() < 2 * obstacle_detect)) ||
-             ((double)BACK_LEFT_longIR_reading() >
-              10000)) {  // Obstacle DOES NOT exist on left side
-    // Strafe left
-    dualPrintln((double)BACK_LEFT_longIR_reading() < 2 * obstacle_detect);
+      // If an obstacle suddenly appears on the right.
+      if ((double)BACK_RIGHT_longIR_reading() < obstacle_detect) break;
 
-    // Just keep strafing left until the front sensors don't detect anymore +
-    // strafe left for 1 more second
-    strafe_time(1000, LEFT);
-  }
+    } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) ||
+             ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect) ||
+             ((double)HC_SR04_range() < obstacle_detect));
+
+  } else if ((!((double)BACK_LEFT_longIR_reading() < obstacle_detect)) ||
+              ((double)BACK_LEFT_longIR_reading() > 10000)) {  // Obstacle DOES NOT exist on left side
+
+    do {  // Strafe Left until front doesn't see obstacle
+      // Start Strafing------------//
+      GYRO_controller(0, 6, 0, 0);
+
+      left_front_motor.writeMicroseconds(1500 + gyro_u - speed_val);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + speed_val);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + speed_val);
+      right_front_motor.writeMicroseconds(1500 + gyro_u - speed_val);
+
+      // If an obstacle suddenly appears on the left.
+      if ((double)BACK_LEFT_longIR_reading() < obstacle_detect) break;
+
+    } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) ||
+             ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect) ||
+             ((double)HC_SR04_range() < obstacle_detect));
+  } 
 }
 
 void forward_right() {
