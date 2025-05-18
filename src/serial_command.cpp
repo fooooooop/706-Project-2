@@ -79,7 +79,7 @@ void read_serial_command() {
       case 'x':  // Initiate forward_left() **CANNOT LEAVE BY PRESSING V OR 9**
       case 'X':
         dualPrintln("Loop forward_left initiated");
-        // forward_left();
+        forward_light(0);
         dualPrintln("Loop forward_left done!");
         break;
 
@@ -135,7 +135,7 @@ void read_serial_command() {
         dualPrintln("Back Right IR sensor reading done!");
         break;
 
-      case '5':
+      case '0':
         dualPrintln("Ultrasonic Sensor reading initiated");
         while (Serial1.read() != '9') {
           float distance = HC_SR04_range();
@@ -147,7 +147,7 @@ void read_serial_command() {
         dualPrintln("Ultrasonic reading done!");
         break;
 
-      case '0':
+      case '5':
         dualPrintln("Front Left PT sensor reading initiated");
         while (Serial1.read() != '9') {
           dualPrint("Front left PT reading: ");
@@ -191,19 +191,49 @@ void read_serial_command() {
 
       case 'c':  // Initiate forward_right() **CANNOT LEAVE BY PRESSING V OR 9**
       case 'C':
-        dualPrintln("Loop forward_right initiated");
-        // forward_right();
-        dualPrintln("Loop forward_right done!");
+        dualPrintln("Rotate light initiated");
+        rotate_findlight();
+        dualPrintln("Rotate light done");
         break;
 
       case 'p':
       case 'P':
-        while (1) {
-          dualPrintln("Find light initiated");
-          // find_light();
-          rotate_findlight();
-          dualPrintln("Find light done");
+        dualPrintln("Find light initiated");
+        // Find First Light
+        find_light();
+        // Take an angle reading and "zero" the robot---//
+        // Set Gyro zero voltage
+        int i;
+        float sum = 0;
+        int sensorValue = 0;
+        for (i = 0; i < 100; i++)  // read 100 values of voltage when gyro is at
+                                  // still, to calculate the zero-drift
+        {
+          sensorValue = analogRead(A3);
+          sum += sensorValue;
+          delay(5);
         }
+        gyroZeroVoltage = sum / 100;  // average the sum as the zero drifting
+        for (int i = 1; i < 10; i++) {
+          GYRO_reading(100);
+        }
+        currentAngle = 0;
+        //----------------------------------------------//
+
+        forward_light(0);
+        forward();
+        delay(10000);
+
+        
+        // Find Second Light and "zero" the robot---//
+        find_light();
+        currentAngle = 0;
+        //----------------------------------------------//
+
+        forward_light(0);
+        forward();
+        delay(10000);
+        dualPrintln("Find light done");    
         break;
 
       default:

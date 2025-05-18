@@ -79,6 +79,54 @@ double GYRO_controller(double gyro_target, double kp, double ki, double kd) {
   return gyro_err_current;
 }
 
+double PT_controller(double kp, double ki, double kd){
+  //Setup!------------------------//
+
+  // Time variables
+  double t_current = 0;
+
+  // General error variables
+  double right_side_reading;
+  double left_side_reading;
+  double PT_err_current;
+
+  // For Derivative controller
+  double dt;
+  double de;
+  double dedt;
+
+  //Main Code Start!------------------------//
+  // To get dt for Integral and Derivative controllers
+  t_current = millis();
+  dt = (t_current - PT_t_previous) / 1000;
+  PT_t_previous = t_current;
+
+  // PT reading
+  right_side_reading = FRONT_RIGHT_PT_reading() + RIGHT_PT_reading();
+  left_side_reading = FRONT_LEFT_PT_reading() + LEFT_PT_reading();
+
+  // Proportional controller
+  PT_err_current = right_side_reading-left_side_reading;
+
+  // Integral controller
+  if (PT_u < 200) { // Anti-integral windup
+    PT_err_mem += PT_err_current;
+  }
+  
+  // Derivative controller
+  de = (abs(PT_err_current) - abs(PT_err_previous));
+  PT_err_previous = PT_err_current;
+
+  dedt = (de / dt);
+
+  // PID controller
+  (kp*PT_err_current + ki*PT_err_mem + kd*dedt) > 300 ? PT_u = 300 : 
+  (kp*PT_err_current + ki*PT_err_mem + kd*dedt) < -300 ? PT_u = -300 :
+  PT_u = kp*PT_err_current + ki*PT_err_mem + kd*dedt;
+
+  return PT_err_current;
+}
+
 double IR_controller(double IR_target, enum DRIVE IR_mode, enum DIRECTION left_right, double kp, double ki, double kd) {
   //Setup!------------------------//
 

@@ -4,6 +4,7 @@
 #define BACKWARD_BOUND 166
 #define SAMPLING_TIME 125
 
+
 void enable_motors() {
   left_front_motor.attach(left_front);
   left_rear_motor.attach(left_rear);
@@ -31,17 +32,12 @@ void stop_motors() {
 }
 
 void forward() {
-  while (1) {
-    GYRO_controller(0, 20.5, 0, 0);
+  while (HC_SR04_range() > 40) {
+    GYRO_controller(0, 0, 0, 0);
     left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u);
     left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u);
     right_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u);
     right_front_motor.writeMicroseconds(1500 - speed_val + gyro_u);
-
-    // if (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) ||
-    //     ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect) ||
-    //     ((double)HC_SR04_range() < obstacle_detect))
-    //   avoid_obstacle();
   }
 
   // Stop Motor ----//
@@ -133,80 +129,30 @@ void turn_angle(double target) {
   }
 }
 
-void forward_target(double target_sidewall, double target,
-                    enum DIRECTION left_right, enum SPEED boostit) {
-  boostit == FAST ? speed_val = 350 : speed_val = 165;
-
-  do {
-    GYRO_controller(0, 20.25, 0, 0);
-    IR_controller(target_sidewall, AWD, left_right, 2.05, 0.01, 0.08);
-
-    // Send Power to Motors-----//
-    left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u - IR_u);
-    left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u + IR_u);
-    right_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u + IR_u);
-    right_front_motor.writeMicroseconds(1500 - speed_val + gyro_u - IR_u);
-    // IR_u based on strafe_left function
-
-    // Exit Condition - when ultrasonic sensor reaches target//
-  } while (
-      1);  //(US_value[k] > target); Ultrasonic sensor isn't a thing right now
-
-  // Stop Motor ----//
-  stop_motors();
-
-  IR_u = 0;
-  IR_err_mem = 0;
-  IR_err_mem_back = 0;
-  IR_err_mem_front = 0;
-  IR_err_previous = 0;
-}
-
-void reverse_target(double target_sidewall, double target,
-                    enum DIRECTION left_right, enum SPEED boostit) {
-  boostit == FAST ? speed_val = 350 : speed_val = 165;
-
-  do {
-    GYRO_controller(0, 20.25, 0, 0);
-    IR_controller(target_sidewall, AWD, left_right, 2.05, 0.01, 0.08);
-
-    // Send Power to Motors-----//
-    left_front_motor.writeMicroseconds(1500 - speed_val + gyro_u - IR_u);
-    left_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u + IR_u);
-    right_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u + IR_u);
-    right_front_motor.writeMicroseconds(1500 + speed_val + gyro_u - IR_u);
-    // IR_u based on strafe_left function
-
-    // Exit Condition - when ultrasonic sensor reaches target//
-  } while (
-      1);  //(US_value[k] < target); Ultrasonic sensor isn't a thing right now
-
-  // Stop Motor ----//
-  stop_motors();
-
-  IR_u = 0;
-  IR_err_mem = 0;
-  IR_err_mem_back = 0;
-  IR_err_mem_front = 0;
-  IR_err_previous = 0;
-}
-
 void avoid_obstacle(double angle_target) {
   stop_motors();
+
+  // Setup for check if Light/Fire is already there
+  float detection_threshold = 970; // light is clearly detected in front
+
   if ((!((double)BACK_RIGHT_longIR_reading() < obstacle_detect)) || 
        ((double)BACK_RIGHT_longIR_reading() > 10000)) {  // Obstacle DOES NOT exist on right side
     
     do {  // Strafe Right until front doesn't see obstacle
       // Start Strafing------------//
       GYRO_controller(angle_target, 6, 0, 0);
+      PT_controller(0.40, 0.0, 0.0);
 
-      left_front_motor.writeMicroseconds(1500 + gyro_u + speed_val);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u - speed_val);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u - speed_val);
-      right_front_motor.writeMicroseconds(1500 + gyro_u + speed_val);
+      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
 
       // If an obstacle suddenly appears on the right.
       if ((double)BACK_RIGHT_longIR_reading() < obstacle_detect) break;
+
+      // Check if Light/Fire is already there
+      if (FRONT_RIGHT_PT_reading() > detection_threshold) return;
 
     } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) ||
              ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect) ||
@@ -218,14 +164,18 @@ void avoid_obstacle(double angle_target) {
     do {  // Strafe Left until front doesn't see obstacle
       // Start Strafing------------//
       GYRO_controller(angle_target, 6, 0, 0);
+      PT_controller(0.40, 0.0, 0.0);
 
-      left_front_motor.writeMicroseconds(1500 + gyro_u - speed_val);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u + speed_val);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u + speed_val);
-      right_front_motor.writeMicroseconds(1500 + gyro_u - speed_val);
+      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
 
       // If an obstacle suddenly appears on the left.
       if ((double)BACK_LEFT_longIR_reading() < obstacle_detect) break;
+
+      // Check if Light/Fire is already there
+      if (FRONT_RIGHT_PT_reading() > detection_threshold) return;
 
     } while (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) ||
              ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect) ||
@@ -234,65 +184,58 @@ void avoid_obstacle(double angle_target) {
 }
 
 void forward_light(double angle_target) {
-  while (1) {
-    GYRO_controller(angle_target, 20.5, 0, 0);
-    left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u);
-    left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u);
-    right_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u);
-    right_front_motor.writeMicroseconds(1500 - speed_val + gyro_u);
+  float detection_threshold = 970; // light is clearly detected in front
+  bool front_right_detected = 0;  // 0 when the front right PT is not detecting light, 1 if it is
 
-    if (((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) ||
-        ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect) ||
-        ((double)HC_SR04_range() < obstacle_detect))
+  while (!(front_right_detected)) {
+    GYRO_controller(angle_target, 6.0, 0, 0);
+    PT_controller(0.40, 0.0, 0.0);
+    left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u + PT_u);
+    left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u + PT_u);
+    right_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u + PT_u);
+    right_front_motor.writeMicroseconds(1500 - speed_val + gyro_u + PT_u);
+
+    if ((((double)FRONT_LEFT_shortIR_reading() < obstacle_detect) ||
+         ((double)FRONT_RIGHT_shortIR_reading() < obstacle_detect) ||
+         ((double)HC_SR04_range() < obstacle_detect)) && !(front_right_detected))
       avoid_obstacle(angle_target);
+
+    // Check which PTs detect light
+    front_right_detected = (FRONT_RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
   }
 
   // Stop Motor ----//
   stop_motors();
+  delay(500);
 }
 
-
 bool find_light() {
-  float detection_threshold = 50; // light is clearly detected when the PT reading is ~1000mm, ~0mm
-                                  // when not. 300 is just a temporary value.
+  float detection_threshold = 50; // light is clearly detected when the PT reading is 50.
 
-  bool left_detected;  // 0 when the left PT is not detecting light, 1 if it is
   bool front_left_detected;  // 0 when the front left PT is not detecting light, 1 if it is
   bool front_right_detected;  // 0 when the front right PT is not detecting light, 1 if it is
-  bool right_detected;  // 0 when the right PT is not detecting light, 1 if it is
 
   // Step 1: Check which PTs detect light
-  left_detected = (LEFT_PT_reading() > detection_threshold) ? 1 : 0;
   front_left_detected = (FRONT_LEFT_PT_reading() > detection_threshold) ? 1 : 0;
   front_right_detected = (FRONT_RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
-  right_detected = (RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
 
   // Step 2: If no PT can see light, CW until the front right and front left ones can.
-  if ((!left_detected && !right_detected && !front_left_detected && !front_right_detected) || // This part CW until the front PTs detect light
-      right_detected || front_right_detected) { // This part finds light on right side of robot
-
+  if (!front_left_detected && !front_right_detected) { // This part CW until the front PTs detect light
     while (!(front_left_detected && front_right_detected)) {
       front_left_detected = (FRONT_LEFT_PT_reading() > detection_threshold) ? 1 : 0;
       front_right_detected = (FRONT_RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
       cw();
     }
     stop_motors();
-
-  } else if (left_detected || front_left_detected) { // This part finds light on left side of robot
-
-    while (!(front_left_detected && front_right_detected)) {
-      front_left_detected = (FRONT_LEFT_PT_reading() > detection_threshold) ? 1 : 0;
-      front_right_detected = (FRONT_RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
-      ccw();
-    }
-    stop_motors();
-
+    delay(300);
   }
 
-  return (front_left_detected || front_right_detected || right_detected || left_detected);
+  return (front_left_detected || front_right_detected);
 }
 
 void rotate_findlight(){
+  // I don't think we should use this function, shit's ass.
+
   // Take an angle reading and "zero" the robot---//
   // Set Gyro zero voltage
   int i;
