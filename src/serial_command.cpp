@@ -200,7 +200,8 @@ void read_serial_command() {
       case 'P':
         while (1) {
           dualPrintln("Find light initiated");
-          find_light();
+          // find_light();
+          rotate_findlight();
           dualPrintln("Find light done");
         }
         break;
@@ -209,6 +210,7 @@ void read_serial_command() {
         stop_motors();
         dualPrintln("Stop executed");
         break;
+
     }
   }
 }

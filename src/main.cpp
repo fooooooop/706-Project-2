@@ -11,11 +11,7 @@ Servo right_rear_motor;
 Servo right_front_motor;
 Servo turret_motor;
 
-short IR_value[SENSOR_LOG_SIZE];
-short IR_pos[SENSOR_LOG_SIZE];
-short US_value[SENSOR_LOG_SIZE];
-short k = 0;
-long global_timesnap = 0;
+short PT_value[SENSOR_LOG_SIZE];
 
 // Speed Control
 int speed_val = 150;

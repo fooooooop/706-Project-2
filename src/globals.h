@@ -14,13 +14,9 @@
 #define MEDIAN_WINDOW_BR 5
 #define MEDIAN_WINDOW_BL 5
 
-#define SENSOR_LOG_SIZE 500
+#define SENSOR_LOG_SIZE 1000
 
-// extern short IR_value[SENSOR_LOG_SIZE];
-// extern short IR_pos[SENSOR_LOG_SIZE];
-// extern short US_value[SENSOR_LOG_SIZE];
-// extern short k;
-// extern long global_timesnap;
+extern short PT_value[SENSOR_LOG_SIZE];
 
 // State machine state
 enum STATE { INITIALISING, RUNNING, STOPPED };

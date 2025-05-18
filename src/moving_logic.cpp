@@ -31,8 +31,7 @@ void stop_motors() {
 }
 
 void forward() {
-  bool light_detected = find_light();
-  while (light_detected) {
+  while (1) {
     GYRO_controller(0, 20.5, 0, 0);
     left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u);
     left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u);
@@ -104,14 +103,11 @@ void turn_angle(double target) {
   bool gyro_timestart = false;
   double gyro_timer = 0;
   double gyro_err_pos;
-  double gyro_bounds = 9;
+  double gyro_bounds = 10;
 
   while (gyro_exit == false) {
     gyro_err_pos = GYRO_controller(target, 4.75, 0, 0);
-    if (Serial.read() == 'v') {
-      gyro_exit = true;
-    }
-
+    
     // Send Power to Motors-----//
     left_front_motor.writeMicroseconds(1500 + gyro_u);
     left_rear_motor.writeMicroseconds(1500 + gyro_u);
@@ -661,11 +657,6 @@ void find_corner() {
 }
 
 bool find_light() {
-  if (Serial.read() == 'v') {  // force quit.
-    stop_motors();
-    return 0;
-  }
-
   float detection_threshold = 50; // light is clearly detected when the PT reading is ~1000mm, ~0mm
                                   // when not. 300 is just a temporary value.
 
@@ -703,4 +694,76 @@ bool find_light() {
   }
 
   return (front_left_detected || front_right_detected || right_detected || left_detected);
+}
+
+void rotate_findlight(){
+  // Take an angle reading and "zero" the robot---//
+  // Set Gyro zero voltage
+  int i;
+  float sum = 0;
+  int sensorValue = 0;
+  for (i = 0; i < 100; i++)  // read 100 values of voltage when gyro is at
+                             // still, to calculate the zero-drift
+  {
+    sensorValue = analogRead(A3);
+    sum += sensorValue;
+    delay(5);
+  }
+  gyroZeroVoltage = sum / 100;  // average the sum as the zero drifting
+  for (int i = 1; i < 10; i++) {
+    GYRO_reading(100);
+  }
+  currentAngle = 0;
+  //----------------------------------------------//
+
+  // Rotate Robot to "zero" angle
+  turn_angle(179);
+  // Start rotating to find where lights/fires are based on robot angle, will use front right PT as reference
+  int k = 0;
+  int speed_rotate = 115;
+  while (currentAngle > -160) {
+    GYRO_controller(0, 4.75, 0, 0); // Keep track of current angle
+    // Rotate ccw, sorry I didn't wanna mess with the actual function cuz I wanted to control how fast it went
+    // instead of relying on speed_val
+    left_front_motor.writeMicroseconds(1500 - speed_rotate);
+    left_rear_motor.writeMicroseconds(1500 - speed_rotate);
+    right_rear_motor.writeMicroseconds(1500 - speed_rotate);
+    right_front_motor.writeMicroseconds(1500 - speed_rotate);
+    PT_value[k] = FRONT_RIGHT_PT_reading();
+    k++;
+  }
+  stop_motors();
+  delay(500);
+  
+  // Find first max value in array = where *a* light/fire are
+  int first_max_value = 0;
+  int first_max_value_index = 0;
+  for (int i = 0; i < k; i++) {
+    if (PT_value[i] > first_max_value){
+      first_max_value = PT_value[i];
+      first_max_value_index = i;
+    }
+  }
+  PT_value[first_max_value_index] = 0; // "Erase it" to find next light/fire
+
+  // Find second max value in array = where *another* light/fire is
+  // Need to implement a better function because it might just find the first light again
+  int second_max_value = 0;
+  int second_max_value_index = 0;
+  for (int i = 0; i < k; i++) {
+    if (PT_value[i] > second_max_value){
+      second_max_value = PT_value[i];
+      second_max_value_index = i;
+    }
+  }
+
+  // Find angle of our fires
+  // The +180 is because of how we defined our coordinate system
+  // The +20 because our sensors aren't accurate lol
+  int first_fire_angle = 180+20 - round((double)first_max_value_index/k * 360.0); 
+  int second_fire_angle = 180+20 - round((double)second_max_value_index/k * 360.0);
+
+  turn_angle(first_fire_angle);
+
+  return;
 }

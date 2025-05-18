@@ -19,6 +19,7 @@ void strafe_right();
 // Custom functions
 void find_corner();
 bool find_light();
+void rotate_findlight();
 void turn_angle(double target);
 void forward_right();
 void forward_left();
