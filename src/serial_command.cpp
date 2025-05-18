@@ -79,7 +79,7 @@ void read_serial_command() {
       case 'x':  // Initiate forward_left() **CANNOT LEAVE BY PRESSING V OR 9**
       case 'X':
         dualPrintln("Loop forward_left initiated");
-        forward_left();
+        // forward_left();
         dualPrintln("Loop forward_left done!");
         break;
 
@@ -192,7 +192,7 @@ void read_serial_command() {
       case 'c':  // Initiate forward_right() **CANNOT LEAVE BY PRESSING V OR 9**
       case 'C':
         dualPrintln("Loop forward_right initiated");
-        forward_right();
+        // forward_right();
         dualPrintln("Loop forward_right done!");
         break;
 

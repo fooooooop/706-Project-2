@@ -17,12 +17,10 @@ void strafe_left();
 void strafe_right();
 
 // Custom functions
-void find_corner();
 bool find_light();
 void rotate_findlight();
+void forward_light(double angle_target);
 void turn_angle(double target);
-void forward_right();
-void forward_left();
-void avoid_obstacle();
+void avoid_obstacle(double angle_target);
 
 #endif  // MOVING_LOGIC_H
