@@ -4,6 +4,12 @@
 #define BACKWARD_BOUND 166
 #define SAMPLING_TIME 125
 
+#define PT_KP 0.4
+#define PT_KI 0.0
+#define PT_KD 0.0
+#define GYRO_KP 0.0
+#define GYRO_KI 0.0
+#define GYRO_KD 0.0
 
 void enable_motors() {
   left_front_motor.attach(left_front);
@@ -140,8 +146,8 @@ void avoid_obstacle(double angle_target) {
     
     do {  // Strafe Right until front doesn't see obstacle
       // Start Strafing------------//
-      GYRO_controller(angle_target, 6, 0, 0);
-      PT_controller(0.40, 0.0, 0.0);
+      GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
+      PT_controller(PT_KP, PT_KI, PT_KD);
 
       left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
       left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
@@ -163,8 +169,8 @@ void avoid_obstacle(double angle_target) {
 
     do {  // Strafe Left until front doesn't see obstacle
       // Start Strafing------------//
-      GYRO_controller(angle_target, 6, 0, 0);
-      PT_controller(0.40, 0.0, 0.0);
+      GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
+      PT_controller(PT_KP, PT_KI, PT_KD);
 
       left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
       left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
@@ -188,8 +194,9 @@ void forward_light(double angle_target) {
   bool front_right_detected = 0;  // 0 when the front right PT is not detecting light, 1 if it is
 
   while (!(front_right_detected)) {
-    GYRO_controller(angle_target, 6.0, 0, 0);
-    PT_controller(0.40, 0.0, 0.0);
+    GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
+    PT_controller(PT_KP, PT_KI, PT_KD);
+
     left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u + PT_u);
     left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u + PT_u);
     right_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u + PT_u);
