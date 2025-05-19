@@ -83,6 +83,12 @@ void read_serial_command() {
         dualPrintln("Loop forward_left done!");
         break;
 
+      case 'j':  // Initiate forward_left() **CANNOT LEAVE BY PRESSING V OR 9**
+      case 'J':
+        dualPrintln("Rotate loop initiated");
+        rotate_findlight();
+        dualPrintln("Rotate Loop done!");
+        break;
       // Case '1' to print Front Left IR sensor reading continously until '9' is
       // pressed  to stpo
       case '1':
@@ -207,7 +213,7 @@ void read_serial_command() {
         float sum = 0;
         int sensorValue = 0;
         for (i = 0; i < 100; i++)  // read 100 values of voltage when gyro is at
-                                  // still, to calculate the zero-drift
+                                   // still, to calculate the zero-drift
         {
           sensorValue = analogRead(A3);
           sum += sensorValue;
@@ -226,7 +232,6 @@ void read_serial_command() {
         fan_on();
         // delay(10000);
 
-        
         // Find Second Light and "zero" the robot---//
         find_light();
         currentAngle = 0;
@@ -236,14 +241,13 @@ void read_serial_command() {
         forward();
         fan_on();
         // delay(10000);
-        dualPrintln("Find light done");    
+        dualPrintln("Find light done");
         break;
 
       default:
         stop_motors();
         dualPrintln("Stop executed");
         break;
-
     }
   }
 }
