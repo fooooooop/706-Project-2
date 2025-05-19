@@ -3,6 +3,7 @@
 #include "dual_serial.h"
 #include "moving_logic.h"
 #include "positioning_system.h"
+#include "utilities.h"
 
 // woah im adding such big change - test for git pushing
 
@@ -222,7 +223,9 @@ void read_serial_command() {
 
         forward_light(0);
         forward();
-        delay(10000);
+        dualPrintln("First light found, turning on fan");
+        fan_on();
+        // delay(10000);
 
         
         // Find Second Light and "zero" the robot---//
@@ -232,7 +235,8 @@ void read_serial_command() {
 
         forward_light(0);
         forward();
-        delay(10000);
+        fan_on();
+        // delay(10000);
         dualPrintln("Find light done");    
         break;
 

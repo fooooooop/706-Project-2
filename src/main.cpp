@@ -107,6 +107,9 @@ void setup(void) {
   pinMode(TRANS_NINE, INPUT);
   pinMode(TRANS_TEN, INPUT);
   pinMode(TRANS_ELEVEN, INPUT);
+
+  // Fan output pin
+  pinMode(4, OUTPUT); 
 }
 
 void loop(void) {

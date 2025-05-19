@@ -265,3 +265,16 @@ double IR_controller(double IR_target, enum DRIVE IR_mode, enum DIRECTION left_r
 
   return IR_err_current;
 }
+
+void fan_on() {
+  digitalWrite(4, HIGH); // what is digital 4 pin lol
+  bool fan_is_on = 1;
+  unsigned long firstTime = millis();
+  // sleep for 10 seconds
+  while(fan_is_on) {
+    if (millis() >= (firstTime + 10000)) { // more than 10 seconds since the timer started
+      digitalWrite(4, LOW);
+      fan_is_on = 0;
+    }
+  }
+}
