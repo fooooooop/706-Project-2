@@ -19,8 +19,6 @@ int speed_change = 0;
 
 int pos = 0;  // turret pos?
 
-int obstacle_detect = 150;
-
 // Gyro Parameters
 float gyroSupplyVoltage = 5;  // supply voltage for gyro
 float gyroZeroVoltage = 0;    // the value of voltage when gyro is zero

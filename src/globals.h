@@ -78,7 +78,6 @@ extern Servo turret_motor;
 extern int speed_val;
 extern int speed_change;
 extern int pos;
-extern int obstacle_detect;
 
 // Controller variables
 extern double gyro_u;
