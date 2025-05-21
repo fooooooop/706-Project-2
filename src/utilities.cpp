@@ -82,6 +82,9 @@ double GYRO_controller(double gyro_target, double kp, double ki, double kd) {
 double PT_controller(double kp, double ki, double kd){
   //Setup!------------------------//
 
+  // Clamp
+  double clamp_effort = 300;
+
   // Time variables
   double t_current = 0;
 
@@ -120,8 +123,8 @@ double PT_controller(double kp, double ki, double kd){
   dedt = (de / dt);
 
   // PID controller
-  (kp*PT_err_current + ki*PT_err_mem + kd*dedt) > 300 ? PT_u = 300 : 
-  (kp*PT_err_current + ki*PT_err_mem + kd*dedt) < -300 ? PT_u = -300 :
+  (kp*PT_err_current + ki*PT_err_mem + kd*dedt) > clamp_effort ? PT_u = clamp_effort : 
+  (kp*PT_err_current + ki*PT_err_mem + kd*dedt) < -clamp_effort ? PT_u = -clamp_effort :
   PT_u = kp*PT_err_current + ki*PT_err_mem + kd*dedt;
 
   return PT_err_current;
