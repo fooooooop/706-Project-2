@@ -85,12 +85,14 @@ extern double IR_u;
 extern double IRFront_u;
 extern double IRBack_u;
 extern double PT_u;
+extern double AVOID_u;
 
 extern double IR_err_mem;
 extern double IR_err_mem_back;
 extern double IR_err_mem_front;
 extern double gyro_err_mem;
 extern double PT_err_mem;
+extern double AVOID_err_mem;
 
 extern double IR_t_previous;
 extern double IR_err_previous;
@@ -98,6 +100,8 @@ extern double gyro_t_previous;
 extern double gyro_err_previous;
 extern double PT_t_previous;
 extern double PT_err_previous;
+extern double AVOID_t_previous;
+extern double AVOID_err_previous;
 
 // Serial port pointer
 extern HardwareSerial *SerialCom;

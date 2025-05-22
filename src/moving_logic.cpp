@@ -6,6 +6,9 @@
 #define GYRO_KP 0.0
 #define GYRO_KI 0.0
 #define GYRO_KD 0.0
+#define AVOID_KP 0.1
+#define AVOID_KI 0.0
+#define AVOID_KD 0.0
 
 #define OBSTACLE_DETECT 150
 
@@ -158,11 +161,13 @@ void avoid_obstacle(double angle_target) {
       // Start Strafing------------//
       GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
       PT_controller(PT_KP, PT_KI, PT_KD);
+      // AVOID controller is linked to avoid_obstacle()
+      AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading, IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
 
-      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
-      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
+      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u + speed_val);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u - speed_val);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u - speed_val);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u + speed_val);
 
     } while ((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
              (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
@@ -183,11 +188,13 @@ void avoid_obstacle(double angle_target) {
       // Start Strafing------------//
       GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
       PT_controller(PT_KP, PT_KI, PT_KD);
+      // AVOID controller is linked to avoid_obstacle()
+      AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading, IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
 
-      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
-      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
+      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u + speed_val);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u - speed_val);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u - speed_val);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u + speed_val);
 
     } while ((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
              (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||

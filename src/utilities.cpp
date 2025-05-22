@@ -269,6 +269,64 @@ double IR_controller(double IR_target, enum DRIVE IR_mode, enum DIRECTION left_r
   return IR_err_current;
 }
 
+double AVOID_controller(double target, double US_reading, double IR_FRONTRIGHT_reading, double IR_FRONTLEFT_reading, double kp, double ki, double kd){
+  //Setup!------------------------//
+
+  // Clamp
+  double clamp_effort = 300;
+
+  // Time variables
+  double t_current;
+
+  // General error variables
+  double AVOID_currentSensor;
+  double AVOID_err_current;
+
+  // For Derivative controller
+  double dt;
+  double de;
+  double dedt;
+
+  // Main Code Start!------------------------//
+  // To get dt for Integral and Derivative controllers
+  t_current = millis();
+  dt = (t_current - IR_t_previous) / 1000;
+  IR_t_previous = t_current;
+
+  //-IR reading + Proportional Controller-//
+  if (US_reading <= target) {
+    AVOID_currentSensor = US_reading;
+    AVOID_err_current = (target - AVOID_currentSensor); 
+  } else if (IR_FRONTRIGHT_reading <= target) {
+    AVOID_currentSensor = IR_FRONTRIGHT_reading;
+    AVOID_err_current = (target - AVOID_currentSensor); 
+  } else if (IR_FRONTLEFT_reading <= target) {
+    AVOID_currentSensor = IR_FRONTLEFT_reading;
+    AVOID_err_current = (target - AVOID_currentSensor); 
+  }
+  //------------------------------//
+
+  // Integral controller
+  if (abs(AVOID_u) < clamp_effort) { 
+    // Anti-integral windup
+    AVOID_err_mem += AVOID_err_current;
+  }
+  
+  // Derivative controller
+  de = (abs(AVOID_err_current) - abs(AVOID_err_previous));
+  AVOID_err_previous = AVOID_err_current;
+
+  dedt = (de / dt);
+
+  // PID controller
+  // Add clamps
+  if ((kp*AVOID_err_current + ki*AVOID_err_mem + kd*dedt) > clamp_effort) {AVOID_u = clamp_effort;} else
+  if ((kp*AVOID_err_current + ki*AVOID_err_mem + kd*dedt) < -clamp_effort) {AVOID_u = -clamp_effort;} else
+  {AVOID_u = (kp*AVOID_err_current + ki*AVOID_err_mem + kd*dedt);}
+
+  return AVOID_err_current;
+}
+
 void fan_on() {
   digitalWrite(4, HIGH); // what is digital 4 pin lol
   bool fan_is_on = 1;

@@ -9,6 +9,7 @@ void slow_flash_LED_builtin();
 void speed_change_smooth();
 double GYRO_controller(double gyro_target, double kp, double ki, double kd);
 double PT_controller(double kp, double ki, double kd);
+double AVOID_controller(double target, double US_reading, double IR_FRONTRIGHT_reading, double IR_FRONTLEFT_reading, double kp, double ki, double kd);
 double IR_controller(double IR_target, enum DRIVE IR_mode, enum DIRECTION left_right, double kp, double ki, double kd);
 void fan_on();
 
