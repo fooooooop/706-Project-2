@@ -6,7 +6,7 @@
 #define GYRO_KP 0.0
 #define GYRO_KI 0.0
 #define GYRO_KD 0.0
-#define AVOID_KP 0.1
+#define AVOID_KP 0.15
 #define AVOID_KI 0.0
 #define AVOID_KD 0.0
 
@@ -191,10 +191,10 @@ void avoid_obstacle(double angle_target) {
       // AVOID controller is linked to avoid_obstacle()
       AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading, IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
 
-      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u + speed_val);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u - speed_val);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u - speed_val);
-      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u + speed_val);
+      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u - speed_val);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u + speed_val);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u + speed_val);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u - speed_val);
 
     } while ((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
              (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
@@ -203,7 +203,7 @@ void avoid_obstacle(double angle_target) {
 }
 
 void forward_light(double angle_target) {
-  float detection_threshold = 575;  // light is clearly detected when the PT reading is 50.
+  float detection_threshold = 600;  // light is clearly detected when the PT reading is 50.
 
   // Initialize readings so they'll only be read once
   double US_reading;
@@ -227,12 +227,12 @@ void forward_light(double angle_target) {
     // Break Loop Conditions
     // if ((PT_FRONTRIGHT_reading > detection_threshold) && (US_reading < OBSTACLE_DETECT)) break;
     // if ((PT_FRONTLEFT_reading > detection_threshold) && (US_reading < OBSTACLE_DETECT)) break;
-    if (((PT_FRONTRIGHT_reading+PT_FRONTLEFT_reading)/2.0 > detection_threshold) && (US_reading < 125)) break;
+    if (((PT_FRONTRIGHT_reading+PT_FRONTLEFT_reading)/2.0 > detection_threshold) && (US_reading < OBSTACLE_DETECT)) break;
 
     // Avoid Obstacle
-    if ((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
+    if (((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
         (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
-        (US_reading < OBSTACLE_DETECT))
+        (US_reading < OBSTACLE_DETECT)) && !((PT_FRONTRIGHT_reading+PT_FRONTLEFT_reading)/2.0 > detection_threshold))
       avoid_obstacle(angle_target);
 
     // Move Towards Light
