@@ -39,7 +39,7 @@ void stop_motors() {
 }
 
 void forward() {
-  while (HC_SR04_range() > 40) {
+  while (HC_SR04_range() > 50) {
     GYRO_controller(0, 0, 0, 0);
     left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u);
     left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u);
@@ -146,7 +146,8 @@ void avoid_obstacle(double angle_target) {
   double IR_BACKRIGHT_reading;
   double IR_BACKLEFT_reading;
 
-  if (!((double)BACK_RIGHT_longIR_reading() < OBSTACLE_DETECT)) {  // Obstacle DOES NOT exist on right side
+  if (!((double)BACK_RIGHT_longIR_reading() <
+        OBSTACLE_DETECT)) {  // Obstacle DOES NOT exist on right side
 
     do {  // Strafe Right until front doesn't see obstacle
       // Sensor Readings
@@ -162,18 +163,24 @@ void avoid_obstacle(double angle_target) {
       GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
       PT_controller(PT_KP, PT_KI, PT_KD);
       // AVOID controller is linked to avoid_obstacle()
-      AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading, IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
+      AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading,
+                       IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
 
-      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u + speed_val);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u - speed_val);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u - speed_val);
-      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u + speed_val);
+      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u +
+                                         speed_val);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u -
+                                        speed_val);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u -
+                                         speed_val);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u +
+                                          speed_val);
 
     } while ((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
              (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
              (US_reading < OBSTACLE_DETECT));
 
-  } else if (!((double)BACK_LEFT_longIR_reading() < OBSTACLE_DETECT)) {  // Obstacle DOES NOT exist on left side
+  } else if (!((double)BACK_LEFT_longIR_reading() <
+               OBSTACLE_DETECT)) {  // Obstacle DOES NOT exist on left side
 
     do {  // Strafe Left until front doesn't see obstacle
       // Sensor Readings
@@ -189,12 +196,17 @@ void avoid_obstacle(double angle_target) {
       GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
       PT_controller(PT_KP, PT_KI, PT_KD);
       // AVOID controller is linked to avoid_obstacle()
-      AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading, IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
+      AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading,
+                       IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
 
-      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u - speed_val);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u + speed_val);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u + speed_val);
-      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u - speed_val);
+      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u -
+                                         speed_val);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u +
+                                        speed_val);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u +
+                                         speed_val);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u -
+                                          speed_val);
 
     } while ((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
              (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
@@ -203,7 +215,8 @@ void avoid_obstacle(double angle_target) {
 }
 
 void forward_light(double angle_target) {
-  float detection_threshold = 600;  // light is clearly detected when the PT reading is 50.
+  float detection_threshold =
+      600;  // light is clearly detected when the PT reading is 50.
 
   // Initialize readings so they'll only be read once
   double US_reading;
@@ -225,14 +238,20 @@ void forward_light(double angle_target) {
     PT_FRONTLEFT_reading = FRONT_LEFT_PT_reading();
 
     // Break Loop Conditions
-    // if ((PT_FRONTRIGHT_reading > detection_threshold) && (US_reading < OBSTACLE_DETECT)) break;
-    // if ((PT_FRONTLEFT_reading > detection_threshold) && (US_reading < OBSTACLE_DETECT)) break;
-    if (((PT_FRONTRIGHT_reading+PT_FRONTLEFT_reading)/2.0 > detection_threshold) && (US_reading < OBSTACLE_DETECT)) break;
+    // if ((PT_FRONTRIGHT_reading > detection_threshold) && (US_reading <
+    // OBSTACLE_DETECT)) break; if ((PT_FRONTLEFT_reading > detection_threshold)
+    // && (US_reading < OBSTACLE_DETECT)) break;
+    if (((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 >
+         detection_threshold) &&
+        (US_reading < OBSTACLE_DETECT))
+      break;
 
     // Avoid Obstacle
     if (((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
-        (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
-        (US_reading < OBSTACLE_DETECT)) && !((PT_FRONTRIGHT_reading+PT_FRONTLEFT_reading)/2.0 > detection_threshold))
+         (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
+         (US_reading < OBSTACLE_DETECT)) &&
+        !((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 >
+          detection_threshold))
       avoid_obstacle(angle_target);
 
     // Move Towards Light
@@ -248,7 +267,8 @@ void forward_light(double angle_target) {
 }
 
 bool find_light() {
-  float detection_threshold = 50;  // light is clearly detected when the PT reading is 50.
+  float detection_threshold =
+      50;  // light is clearly detected when the PT reading is 50.
 
   bool front_left_detected;  // 0 when the front left PT is not detecting light,
                              // 1 if it is
