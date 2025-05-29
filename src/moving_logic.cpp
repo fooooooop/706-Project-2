@@ -6,7 +6,7 @@
 #define GYRO_KP 0.0
 #define GYRO_KI 0.0
 #define GYRO_KD 0.0
-#define AVOID_KP 0.15
+#define AVOID_KP 0.35
 #define AVOID_KI 0.0
 #define AVOID_KD 0.0
 
@@ -135,7 +135,7 @@ void turn_angle(double target) {
   }
 }
 
-void avoid_obstacle(double angle_target, bool *leftside, bool *rightside) {
+void avoid_obstacle(double angle_target, bool *leftside, bool *rightside, double *leftside_timer, double *rightside_timer) {
   stop_motors();
 
   int side_detect = 100;
@@ -150,17 +150,23 @@ void avoid_obstacle(double angle_target, bool *leftside, bool *rightside) {
   if (!*rightside) {  // Obstacle DOES NOT exist on right side
 
     do {  // Strafe Right until front doesn't see obstacle
-      // Sensor Readings
-      US_reading = (double)HC_SR04_range();
+      // IR Sensor Readings
       IR_FRONTRIGHT_reading = (double)FRONT_RIGHT_shortIR_reading();
       IR_FRONTLEFT_reading = (double)FRONT_LEFT_shortIR_reading();
       IR_BACKRIGHT_reading = (double)BACK_RIGHT_longIR_reading();
 
       // If an obstacle suddenly appears on the right.
-      if (IR_BACKRIGHT_reading < side_detect) break;
+      if (IR_BACKRIGHT_reading < side_detect) {
+        *rightside = true;
+        *rightside_timer = millis();
+        break;
+      }
+
+      // US Sensor Reading
+      US_reading = (double)HC_SR04_range();
 
       // Start Strafing------------//
-      GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
+      // GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
       PT_controller(PT_KP, PT_KI, PT_KD);
       // AVOID controller is linked to avoid_obstacle()
       AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading, IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
@@ -177,17 +183,23 @@ void avoid_obstacle(double angle_target, bool *leftside, bool *rightside) {
   } else if (!*leftside) {  // Obstacle DOES NOT exist on left side
 
     do {  // Strafe Left until front doesn't see obstacle
-      // Sensor Readings
-      US_reading = (double)HC_SR04_range();
+      // IR Sensor Readings
       IR_FRONTRIGHT_reading = (double)FRONT_RIGHT_shortIR_reading();
       IR_FRONTLEFT_reading = (double)FRONT_LEFT_shortIR_reading();
       IR_BACKLEFT_reading = (double)BACK_LEFT_longIR_reading();
 
       // If an obstacle suddenly appears on the left.
-      if (IR_BACKLEFT_reading < side_detect) break;
+      if (IR_BACKLEFT_reading < side_detect) {
+        *leftside = true;
+        *leftside_timer = millis();
+        break;
+      }
+
+      // US Sensor Reading
+      US_reading = (double)HC_SR04_range();
 
       // Start Strafing------------//
-      GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
+      // GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
       PT_controller(PT_KP, PT_KI, PT_KD);
       // AVOID controller is linked to avoid_obstacle()
       AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading, IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
@@ -207,7 +219,7 @@ void forward_light(double angle_target) {
   float detection_threshold = 600;  // light is clearly detected when the PT reading is 50.
 
   // Obstacle Memory Setup
-  int side_detect = 130;
+  int longside_detect = 175;
   bool right_detect = false;
   bool left_detect = false;
   double leftside_timer = 0;
@@ -222,7 +234,7 @@ void forward_light(double angle_target) {
   uint16_t PT_FRONTLEFT_reading;
 
   while (1) {
-    GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
+    // GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
     PT_controller(PT_KP, PT_KI, PT_KD);
 
     // Sensor Readings
@@ -236,15 +248,15 @@ void forward_light(double angle_target) {
     if (((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 > detection_threshold) && (US_reading < OBSTACLE_DETECT)) break;
 
     // Obstacle Memory
-    if ((double)BACK_RIGHT_longIR_reading() < side_detect) { // Right detects obstacle
+    if (((double)BACK_RIGHT_longIR_reading() < longside_detect) && (right_detect == false)){ // Right detects obstacle
       right_detect = true;
       rightside_timer = millis();
     } 
-    if ((double)BACK_LEFT_longIR_reading() < side_detect) { // Left detects obstacle
+    if (((double)BACK_LEFT_longIR_reading() < longside_detect) && (left_detect == false)) { // Left detects obstacle
       left_detect = true;
       leftside_timer = millis();
     }
-    // Robot moves past obstacles after ~2.0 seconds
+    // Robot moves forward past obstacles after ~2.0 seconds
     if ((left_detect == true) && (millis() - leftside_timer >= 2000)) left_detect = false; 
     if ((right_detect == true) && (millis() - rightside_timer >= 2000)) right_detect = false;
 
@@ -253,7 +265,7 @@ void forward_light(double angle_target) {
          (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
          (US_reading < OBSTACLE_DETECT)) &&
         !((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 > detection_threshold))
-      avoid_obstacle(angle_target, &left_detect, &right_detect);
+      avoid_obstacle(angle_target, &left_detect, &right_detect, &leftside_timer, &rightside_timer);
 
     // Move Towards Light
     left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u + PT_u);
