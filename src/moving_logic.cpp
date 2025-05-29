@@ -248,11 +248,11 @@ void forward_light(double angle_target) {
     if (((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 > detection_threshold) && (US_reading < OBSTACLE_DETECT)) break;
 
     // Obstacle Memory
-    if (((double)BACK_RIGHT_longIR_reading() < longside_detect) && (right_detect == false)){ // Right detects obstacle
+    if ((double)BACK_RIGHT_longIR_reading() < longside_detect){ // Right detects obstacle
       right_detect = true;
       rightside_timer = millis();
     } 
-    if (((double)BACK_LEFT_longIR_reading() < longside_detect) && (left_detect == false)) { // Left detects obstacle
+    if ((double)BACK_LEFT_longIR_reading() < longside_detect) { // Left detects obstacle
       left_detect = true;
       leftside_timer = millis();
     }
@@ -280,8 +280,7 @@ void forward_light(double angle_target) {
 }
 
 bool find_light() {
-  float detection_threshold =
-      50;  // light is clearly detected when the PT reading is 50.
+  float detection_threshold = 50;  // light is clearly detected when the PT reading is 50.
 
   bool front_left_detected;  // 0 when the front left PT is not detecting light, 1 if it is
   bool front_right_detected;  // 0 when the front right PT is not detecting light, 1 if it is
