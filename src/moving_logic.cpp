@@ -39,7 +39,7 @@ void stop_motors() {
 }
 
 void forward() {
-  while (HC_SR04_range() > 40) {
+  while (HC_SR04_range() > 55) {
     GYRO_controller(0, 0, 0, 0);
     left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u);
     left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u);
@@ -139,6 +139,8 @@ void turn_angle(double target) {
 void avoid_obstacle(double angle_target) {
   stop_motors();
 
+  int side_detect = 100;
+
   // Initialize readings so they'll only be read once
   double US_reading;
   double IR_FRONTRIGHT_reading;
@@ -146,7 +148,7 @@ void avoid_obstacle(double angle_target) {
   double IR_BACKRIGHT_reading;
   double IR_BACKLEFT_reading;
 
-  if (!((double)BACK_RIGHT_longIR_reading() < OBSTACLE_DETECT)) {  // Obstacle DOES NOT exist on right side
+  if (!((double)BACK_RIGHT_longIR_reading() < side_detect)) {  // Obstacle DOES NOT exist on right side
 
     do {  // Strafe Right until front doesn't see obstacle
       // Sensor Readings
@@ -156,7 +158,7 @@ void avoid_obstacle(double angle_target) {
       IR_BACKRIGHT_reading = (double)BACK_RIGHT_longIR_reading();
 
       // If an obstacle suddenly appears on the right.
-      if (IR_BACKRIGHT_reading < OBSTACLE_DETECT) break;
+      if (IR_BACKRIGHT_reading < side_detect) break;
 
       // Start Strafing------------//
       GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
@@ -173,7 +175,7 @@ void avoid_obstacle(double angle_target) {
              (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
              (US_reading < OBSTACLE_DETECT));
 
-  } else if (!((double)BACK_LEFT_longIR_reading() < OBSTACLE_DETECT)) {  // Obstacle DOES NOT exist on left side
+  } else if (!((double)BACK_LEFT_longIR_reading() < side_detect)) {  // Obstacle DOES NOT exist on left side
 
     do {  // Strafe Left until front doesn't see obstacle
       // Sensor Readings
@@ -183,7 +185,7 @@ void avoid_obstacle(double angle_target) {
       IR_BACKLEFT_reading = (double)BACK_LEFT_longIR_reading();
 
       // If an obstacle suddenly appears on the left.
-      if (IR_BACKLEFT_reading < OBSTACLE_DETECT) break;
+      if (IR_BACKLEFT_reading < side_detect) break;
 
       // Start Strafing------------//
       GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
