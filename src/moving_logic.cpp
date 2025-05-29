@@ -231,17 +231,13 @@ void forward_light(double angle_target) {
     // if ((PT_FRONTRIGHT_reading > detection_threshold) && (US_reading <
     // OBSTACLE_DETECT)) break; if ((PT_FRONTLEFT_reading > detection_threshold)
     // && (US_reading < OBSTACLE_DETECT)) break;
-    if (((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 >
-         detection_threshold) &&
-        (US_reading < OBSTACLE_DETECT))
-      break;
+    if (((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 > detection_threshold) && (US_reading < OBSTACLE_DETECT)) break;
 
     // Avoid Obstacle
     if (((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
          (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
          (US_reading < OBSTACLE_DETECT)) &&
-        !((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 >
-          detection_threshold))
+        !((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 > detection_threshold))
       avoid_obstacle(angle_target);
 
     // Move Towards Light
