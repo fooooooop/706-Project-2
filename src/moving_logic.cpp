@@ -127,8 +127,7 @@ void turn_angle(double target) {
       // Checks to see if yss falls outside of exit threshold
       // If it does, then restart timer
       gyro_timestart = false;
-    } else if ((millis() - gyro_timer > 750.0) &&
-               (abs(gyro_err_pos) < gyro_bounds) && (gyro_timestart == true)) {
+    } else if ((millis() - gyro_timer > 750.0) && (abs(gyro_err_pos) < gyro_bounds) && (gyro_timestart == true)) {
       // Else, if yss is within threshold for a certain amount of time (check
       // first condition), exit controller
       gyro_exit = true;
