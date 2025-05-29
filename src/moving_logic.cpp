@@ -164,17 +164,12 @@ void avoid_obstacle(double angle_target) {
       GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
       PT_controller(PT_KP, PT_KI, PT_KD);
       // AVOID controller is linked to avoid_obstacle()
-      AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading,
-                       IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
+      AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading, IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
 
-      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u +
-                                         speed_val);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u -
-                                        speed_val);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u -
-                                         speed_val);
-      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u +
-                                          speed_val);
+      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u + speed_val);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u - speed_val);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u - speed_val);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u + speed_val);
 
     } while ((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
              (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
@@ -196,17 +191,12 @@ void avoid_obstacle(double angle_target) {
       GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
       PT_controller(PT_KP, PT_KI, PT_KD);
       // AVOID controller is linked to avoid_obstacle()
-      AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading,
-                       IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
+      AVOID_controller(OBSTACLE_DETECT, US_reading, IR_FRONTRIGHT_reading, IR_FRONTLEFT_reading, AVOID_KP, AVOID_KI, AVOID_KD);
 
-      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u -
-                                         speed_val);
-      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u +
-                                        speed_val);
-      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u +
-                                         speed_val);
-      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u -
-                                          speed_val);
+      left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u - speed_val);
+      left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - AVOID_u + speed_val);
+      right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u + speed_val);
+      right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + AVOID_u - speed_val);
 
     } while ((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
              (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
@@ -270,25 +260,19 @@ bool find_light() {
   float detection_threshold =
       50;  // light is clearly detected when the PT reading is 50.
 
-  bool front_left_detected;  // 0 when the front left PT is not detecting light,
-                             // 1 if it is
-  bool front_right_detected;  // 0 when the front right PT is not detecting
-                              // light, 1 if it is
+  bool front_left_detected;  // 0 when the front left PT is not detecting light, 1 if it is
+  bool front_right_detected;  // 0 when the front right PT is not detecting light, 1 if it is
 
   // Step 1: Check which PTs detect light
   front_left_detected = (FRONT_LEFT_PT_reading() > detection_threshold) ? 1 : 0;
-  front_right_detected =
-      (FRONT_RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
+  front_right_detected = (FRONT_RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
 
   // Step 2: If no PT can see light, CW until the front right and front left
   // ones can.
-  if (!front_left_detected &&
-      !front_right_detected) {  // This part CW until the front PTs detect light
+  if (!front_left_detected && !front_right_detected) {  // This part CW until the front PTs detect light
     while (!(front_left_detected && front_right_detected)) {
-      front_left_detected =
-          (FRONT_LEFT_PT_reading() > detection_threshold) ? 1 : 0;
-      front_right_detected =
-          (FRONT_RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
+      front_left_detected = (FRONT_LEFT_PT_reading() > detection_threshold) ? 1 : 0;
+      front_right_detected = (FRONT_RIGHT_PT_reading() > detection_threshold) ? 1 : 0;
       cw();
     }
     stop_motors();
@@ -306,8 +290,7 @@ void rotate_findlight() {
   int i;
   float sum = 0;
   int sensorValue = 0;
-  for (i = 0; i < 100; i++)  // read 100 values of voltage when gyro is at
-                             // still, to calculate the zero-drift
+  for (i = 0; i < 100; i++)  // read 100 values of voltage when gyro is at still, to calculate the zero-drift
   {
     sensorValue = analogRead(A3);
     sum += sensorValue;
