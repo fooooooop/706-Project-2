@@ -227,10 +227,7 @@ void forward_light(double angle_target) {
     PT_FRONTRIGHT_reading = FRONT_RIGHT_PT_reading();
     PT_FRONTLEFT_reading = FRONT_LEFT_PT_reading();
 
-    // Break Loop Conditions
-    // if ((PT_FRONTRIGHT_reading > detection_threshold) && (US_reading <
-    // OBSTACLE_DETECT)) break; if ((PT_FRONTLEFT_reading > detection_threshold)
-    // && (US_reading < OBSTACLE_DETECT)) break;
+    // Break Loop Condition
     if (((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 > detection_threshold) && (US_reading < OBSTACLE_DETECT)) break;
 
     // Avoid Obstacle
