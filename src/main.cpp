@@ -14,7 +14,7 @@ Servo turret_motor;
 short PT_value[SENSOR_LOG_SIZE];
 
 // Speed Control
-int speed_val = 135;
+int speed_val = 140;
 int speed_change = 0;
 
 int pos = 0;  // turret pos?
@@ -111,7 +111,7 @@ void setup(void) {
   pinMode(TRANS_ELEVEN, INPUT);
 
   // Fan output pin
-  pinMode(4, OUTPUT); 
+  pinMode(4, OUTPUT);
 }
 
 void loop(void) {
