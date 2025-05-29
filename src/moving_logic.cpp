@@ -135,7 +135,7 @@ void turn_angle(double target) {
   }
 }
 
-void avoid_obstacle(double angle_target) {
+void avoid_obstacle(double angle_target, bool *leftside, bool *rightside) {
   stop_motors();
 
   int side_detect = 100;
@@ -147,7 +147,7 @@ void avoid_obstacle(double angle_target) {
   double IR_BACKRIGHT_reading;
   double IR_BACKLEFT_reading;
 
-  if (!((double)BACK_RIGHT_longIR_reading() < side_detect)) {  // Obstacle DOES NOT exist on right side
+  if (!*rightside) {  // Obstacle DOES NOT exist on right side
 
     do {  // Strafe Right until front doesn't see obstacle
       // Sensor Readings
@@ -174,7 +174,7 @@ void avoid_obstacle(double angle_target) {
              (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
              (US_reading < OBSTACLE_DETECT));
 
-  } else if (!((double)BACK_LEFT_longIR_reading() < side_detect)) {  // Obstacle DOES NOT exist on left side
+  } else if (!*leftside) {  // Obstacle DOES NOT exist on left side
 
     do {  // Strafe Left until front doesn't see obstacle
       // Sensor Readings
@@ -204,8 +204,14 @@ void avoid_obstacle(double angle_target) {
 }
 
 void forward_light(double angle_target) {
-  float detection_threshold =
-      600;  // light is clearly detected when the PT reading is 50.
+  float detection_threshold = 600;  // light is clearly detected when the PT reading is 50.
+
+  // Obstacle Memory Setup
+  int side_detect = 130;
+  bool right_detect = false;
+  bool left_detect = false;
+  double leftside_timer = 0;
+  double rightside_timer = 0;
 
   // Initialize readings so they'll only be read once
   double US_reading;
@@ -229,12 +235,25 @@ void forward_light(double angle_target) {
     // Break Loop Condition
     if (((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 > detection_threshold) && (US_reading < OBSTACLE_DETECT)) break;
 
+    // Obstacle Memory
+    if ((double)BACK_RIGHT_longIR_reading() < side_detect) { // Right detects obstacle
+      right_detect = true;
+      rightside_timer = millis();
+    } 
+    if ((double)BACK_LEFT_longIR_reading() < side_detect) { // Left detects obstacle
+      left_detect = true;
+      leftside_timer = millis();
+    }
+    // Robot moves past obstacles after ~2.0 seconds
+    if ((left_detect == true) && (millis() - leftside_timer >= 2000)) left_detect = false; 
+    if ((right_detect == true) && (millis() - rightside_timer >= 2000)) right_detect = false;
+
     // Avoid Obstacle
     if (((IR_FRONTLEFT_reading < OBSTACLE_DETECT) ||
          (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
          (US_reading < OBSTACLE_DETECT)) &&
         !((PT_FRONTRIGHT_reading + PT_FRONTLEFT_reading) / 2.0 > detection_threshold))
-      avoid_obstacle(angle_target);
+      avoid_obstacle(angle_target, &left_detect, &right_detect);
 
     // Move Towards Light
     left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u + PT_u);

@@ -21,6 +21,6 @@ bool find_light();
 void rotate_findlight();
 void forward_light(double angle_target);
 void turn_angle(double target);
-void avoid_obstacle(double angle_target);
+void avoid_obstacle(double angle_target, bool *leftside, bool *rightside);
 
 #endif  // MOVING_LOGIC_H
