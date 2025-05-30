@@ -206,6 +206,10 @@ void read_serial_command() {
       case 'P':
         dualPrintln("Find light initiated");
         // Find First Light
+        BACK_LEFT_longIR_reading();
+        BACK_RIGHT_longIR_reading();
+        FRONT_LEFT_shortIR_reading();
+        FRONT_RIGHT_shortIR_reading();
         find_light();
         // Take an angle reading and "zero" the robot---//
         // Set Gyro zero voltage

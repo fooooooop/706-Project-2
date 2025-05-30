@@ -39,7 +39,7 @@ void stop_motors() {
 }
 
 void forward() {
-  while (HC_SR04_range() > 55) {
+  while (HC_SR04_range() > 60) {
     GYRO_controller(0, 0, 0, 0);
     left_front_motor.writeMicroseconds(1500 + speed_val + gyro_u);
     left_rear_motor.writeMicroseconds(1500 + speed_val + gyro_u);
@@ -287,23 +287,63 @@ void avoid_obstacle(double angle_target, bool *leftside, bool *rightside, double
               (IR_FRONTRIGHT_reading < OBSTACLE_DETECT) ||
               (US_reading < OBSTACLE_DETECT));
     } else {
-      // If it has detected obstacles on both sides (boxed-in)
-      reverse(1500); // Reverse for 1.5 seconds
+      // If it has detected obstacles on both sides (boxed-in) ---//
+      reverse(1200); // Reverse for 1.2 seconds
 
       if ((double)BACK_LEFT_longIR_reading() < (double)BACK_RIGHT_longIR_reading()) {
-        // Strafe Right until it detects another obstacle
-        while ((IR_FRONTLEFT_reading > OBSTACLE_DETECT) && (IR_FRONTRIGHT_reading > OBSTACLE_DETECT) && (US_reading > OBSTACLE_DETECT)) strafe_right();
-        // Force Left Side Detect to strafe it right
-        *leftside = true; // Force it to keep strafing
-        *leftside_timer = millis();
-        *rightside = false;
+        // Strafe Right until Front Left detects another obstacle
+        do {
+          // Sensor Readings
+          US_reading = (double)HC_SR04_range();
+          IR_FRONTLEFT_reading = (double)FRONT_LEFT_shortIR_reading();
+          IR_BACKRIGHT_reading = (double)BACK_RIGHT_longIR_reading();
+
+          // If an obstacle suddenly appears on the right.
+          if (IR_BACKRIGHT_reading < side_detect) {
+            *rightside = true;
+            *rightside_timer = millis();
+            *leftside = false;
+            break;
+          }
+
+          // Start Strafing------------//
+          // GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
+          PT_controller(PT_KP, PT_KI, PT_KD);
+
+          left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
+          left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
+          right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
+          right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
+        }
+        while ((IR_FRONTLEFT_reading > OBSTACLE_DETECT) && (US_reading > OBSTACLE_DETECT));
+        
       } else if ((double)BACK_RIGHT_longIR_reading() < (double)BACK_LEFT_longIR_reading()) {
-        // Strafe Left until it detects another obstacle
-        while ((IR_FRONTLEFT_reading > OBSTACLE_DETECT) && (IR_FRONTRIGHT_reading > OBSTACLE_DETECT) && (US_reading > OBSTACLE_DETECT)) strafe_left();
-        // Force Right Side Detect to strafe it left
-        *rightside = true; // Force it to keep strafing
-        *rightside_timer = millis();
-        *leftside = false;
+        // Strafe Left until Front Right detects another obstacle
+        do {
+          // Sensor Readings
+          US_reading = (double)HC_SR04_range();
+          IR_FRONTRIGHT_reading = (double)FRONT_RIGHT_shortIR_reading();
+          IR_BACKLEFT_reading = (double)BACK_LEFT_longIR_reading();
+
+          // If an obstacle suddenly appears on the left.
+          if (IR_BACKLEFT_reading < side_detect) {
+            *leftside = true;
+            *leftside_timer = millis();
+            *rightside = false;
+            break;
+          }
+
+          // Start Strafing------------//
+          // GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
+          PT_controller(PT_KP, PT_KI, PT_KD);
+
+          left_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
+          left_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
+          right_rear_motor.writeMicroseconds(1500 + gyro_u + PT_u + speed_val);
+          right_front_motor.writeMicroseconds(1500 + gyro_u + PT_u - speed_val);
+        }
+        while ((IR_FRONTRIGHT_reading > OBSTACLE_DETECT) && (US_reading > OBSTACLE_DETECT));
+        
       }
     }
   }
