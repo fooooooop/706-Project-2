@@ -26,7 +26,7 @@ void read_serial_command() {
         break;
       case 's':  // Move Backward
       case 'S':
-        reverse();
+        reverse(1500);
         dualPrintln("Reverse executed");
         break;
       case 'q':  // Strafe Left
@@ -230,7 +230,7 @@ void read_serial_command() {
         forward();
         dualPrintln("First light found, turning on fan");
         fan_on();
-        // delay(10000);
+        reverse(500);
 
         // Find Second Light and "zero" the robot---//
         find_light();

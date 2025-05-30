@@ -51,11 +51,11 @@ void forward() {
   stop_motors();
 }
 
-void reverse() {
+void reverse(double time) {
   currentAngle = 0;
   double reverse_timer = millis();
 
-  while (millis() - reverse_timer < 1500) {
+  while (millis() - reverse_timer < time) {
     GYRO_controller(0, 20.5, 0, 0);
     left_front_motor.writeMicroseconds(1500 - speed_val + gyro_u);
     left_rear_motor.writeMicroseconds(1500 - speed_val + gyro_u);
@@ -160,6 +160,7 @@ void avoid_obstacle(double angle_target, bool *leftside, bool *rightside, double
       if (IR_BACKRIGHT_reading < side_detect) {
         *rightside = true;
         *rightside_timer = millis();
+        *leftside = false;
         break;
       } else {
         *leftside = true; // Force it to keep strafing
@@ -194,6 +195,7 @@ void avoid_obstacle(double angle_target, bool *leftside, bool *rightside, double
       if (IR_BACKLEFT_reading < side_detect) {
         *leftside = true;
         *leftside_timer = millis();
+        *rightside = false;
         break;
       } else {
         *rightside = true; // Force it to keep strafing
@@ -231,7 +233,12 @@ void avoid_obstacle(double angle_target, bool *leftside, bool *rightside, double
         IR_BACKRIGHT_reading = (double)BACK_RIGHT_longIR_reading();
 
         // If an obstacle suddenly appears on the right.
-        if (IR_BACKRIGHT_reading < side_detect) break;
+        if (IR_BACKRIGHT_reading < side_detect) {
+          *rightside = true;
+          *rightside_timer = millis();
+          *leftside = false;
+          break;
+        }
 
         // Start Strafing------------//
         GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
@@ -258,7 +265,12 @@ void avoid_obstacle(double angle_target, bool *leftside, bool *rightside, double
         IR_BACKLEFT_reading = (double)BACK_LEFT_longIR_reading();
 
         // If an obstacle suddenly appears on the left.
-        if (IR_BACKLEFT_reading < side_detect) break;
+        if (IR_BACKLEFT_reading < side_detect) {
+          *leftside = true;
+          *leftside_timer = millis();
+          *rightside = false;
+          break;
+        }
 
         // Start Strafing------------//
         GYRO_controller(angle_target, GYRO_KP, GYRO_KI, GYRO_KD);
@@ -276,15 +288,21 @@ void avoid_obstacle(double angle_target, bool *leftside, bool *rightside, double
               (US_reading < OBSTACLE_DETECT));
     } else {
       // If it has detected obstacles on both sides (boxed-in)
-      reverse(); // Reverse for 1.5 seconds
+      reverse(1500); // Reverse for 1.5 seconds
 
       if ((double)BACK_LEFT_longIR_reading() < (double)BACK_RIGHT_longIR_reading()) {
         // Strafe Right until it detects another obstacle
         while ((IR_FRONTLEFT_reading > OBSTACLE_DETECT) && (IR_FRONTRIGHT_reading > OBSTACLE_DETECT) && (US_reading > OBSTACLE_DETECT)) strafe_right();
+        // Force Left Side Detect to strafe it right
+        *leftside = true; // Force it to keep strafing
+        *leftside_timer = millis();
         *rightside = false;
       } else if ((double)BACK_RIGHT_longIR_reading() < (double)BACK_LEFT_longIR_reading()) {
         // Strafe Left until it detects another obstacle
         while ((IR_FRONTLEFT_reading > OBSTACLE_DETECT) && (IR_FRONTRIGHT_reading > OBSTACLE_DETECT) && (US_reading > OBSTACLE_DETECT)) strafe_left();
+        // Force Right Side Detect to strafe it left
+        *rightside = true; // Force it to keep strafing
+        *rightside_timer = millis();
         *leftside = false;
       }
     }
@@ -351,7 +369,6 @@ void forward_light(double angle_target) {
 
   // Stop Motor ----//
   stop_motors();
-  delay(500);
 }
 
 bool find_light() {
@@ -373,7 +390,7 @@ bool find_light() {
       cw();
     }
     stop_motors();
-    delay(500);
+    delay(200);
   }
 
   return (front_left_detected || front_right_detected);

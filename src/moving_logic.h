@@ -10,7 +10,7 @@ void enable_motors();
 void disable_motors();
 void stop_motors();
 void forward();
-void reverse();
+void reverse(double time);
 void ccw();
 void cw();
 void strafe_left();
