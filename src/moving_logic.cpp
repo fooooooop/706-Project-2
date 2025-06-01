@@ -6,7 +6,7 @@
 #define GYRO_KP 0.0
 #define GYRO_KI 0.0
 #define GYRO_KD 0.0
-#define AVOID_KP 0.25
+#define AVOID_KP 0.4
 #define AVOID_KI 0.0
 #define AVOID_KD 0.0
 
@@ -138,7 +138,7 @@ void turn_angle(double target) {
 void avoid_obstacle(double angle_target, bool *leftside, bool *rightside, double *leftside_timer, double *rightside_timer) {
   stop_motors();
 
-  int side_detect = 100;
+  int side_detect = 85;
 
   // Initialize readings so they'll only be read once
   double US_reading;
@@ -350,7 +350,7 @@ void avoid_obstacle(double angle_target, bool *leftside, bool *rightside, double
 }
 
 void forward_light(double angle_target) {
-  float detection_threshold = 750;  // light is clearly detected when the PT reading is 50.
+  float detection_threshold = 575;  // light is clearly detected when the PT reading is 50.
 
   // Obstacle Memory Setup
   int longside_detect = 175;
