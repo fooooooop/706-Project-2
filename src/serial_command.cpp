@@ -195,11 +195,11 @@ void read_serial_command() {
         dualPrintln("Right PT sensor reading done!");
         break;
 
-      case 'c':  // Initiate forward_right() **CANNOT LEAVE BY PRESSING V OR 9**
-      case 'C':
-        dualPrintln("Rotate light initiated");
-        rotate_findlight();
-        dualPrintln("Rotate light done");
+      case 'f':  // Initiate forward_right() **CANNOT LEAVE BY PRESSING V OR 9**
+      case 'F':
+        dualPrintln("Fan initiated");
+        fan_on();
+        dualPrintln("Fan done");
         break;
 
       case 'p':

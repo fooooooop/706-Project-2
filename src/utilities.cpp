@@ -331,11 +331,20 @@ void fan_on() {
   digitalWrite(4, HIGH); // what is digital 4 pin lol
   bool fan_is_on = 1;
   unsigned long firstTime = millis();
+  float detection_threshold = 50;  // light is clearly detected when the PT reading is 50.
+  uint16_t PT_FRONTRIGHT_reading = FRONT_RIGHT_PT_reading();
+  uint16_t PT_FRONTLEFT_reading = FRONT_LEFT_PT_reading();
   // sleep for 10 seconds
   while(fan_is_on) {
-    if (millis() >= (firstTime + 10000)) { // more than 10 seconds since the timer started
+    PT_FRONTLEFT_reading = FRONT_LEFT_PT_reading();
+    PT_FRONTRIGHT_reading = FRONT_RIGHT_PT_reading();
+    if ((PT_FRONTRIGHT_reading < detection_threshold) && (PT_FRONTLEFT_reading < detection_threshold)) {
+      digitalWrite(4, LOW);
+      fan_is_on = 0;
+    } else if (millis() >= (firstTime + 10000)) { // more than 10 seconds since the timer started
       digitalWrite(4, LOW);
       fan_is_on = 0;
     }
   }
+  delay(500);
 }
