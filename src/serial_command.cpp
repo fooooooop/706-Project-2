@@ -244,8 +244,8 @@ void read_serial_command() {
         forward_light(0);
         forward();
         fan_on();
-        // delay(10000);
         dualPrintln("Find light done");
+        delay(10000);
         break;
 
       default:
